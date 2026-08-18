@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useScroll, useMotionValueEvent, motion } from 'framer-motion';
 
-const FRAME_COUNT = 90;
+const FRAME_COUNT = 101; // Updated to match actual 101 image files (000 to 100)
 
 export default function ScrollyCanvas({ children }: { children?: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,12 +29,10 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     } else {
       setIsAutoScrolling(true);
       const scrollStep = () => {
-        // Stop if we hit the bottom of the entire page
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) {
           setIsAutoScrolling(false);
           return;
         }
-        // Dynamic speed based on current section
         const canvasHeight = containerRef.current?.offsetHeight || (window.innerHeight * 5);
         const scrollSpeed = window.scrollY < canvasHeight ? 20 : 3.75;
         
@@ -58,17 +56,19 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
 
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
-      const frameNum = i.toString().padStart(2, '0');
-      // The images in the directory are actually .png instead of .webp
-      img.src = `/sequence/frame_${frameNum}_delay-0.066s.png`;
+      const frameNum = i.toString().padStart(3, '0');
+      img.src = `/ezgif-split/frame_${frameNum}_delay-0.071s.png`;
       
-      img.onload = () => {
+      const onFinished = () => {
         loadedCount++;
         if (loadedCount === FRAME_COUNT) {
           setImages(loadedImages);
           setIsLoaded(true);
         }
       };
+
+      img.onload = onFinished;
+      img.onerror = onFinished; // Fallback so missing frames won't lock up preloader
       loadedImages.push(img);
     }
   }, []);
@@ -86,23 +86,23 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Use intrinsic image dimensions for the canvas resolution
-    if (canvas.width !== imgs[0].width) {
+    if (canvas.width !== imgs[0].width && imgs[0].width > 0) {
       canvas.width = imgs[0].width;
       canvas.height = imgs[0].height;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Draw scaled to fill the canvas to behave like object-fit: cover, 
-    // but we can also just let CSS handle it if canvas has fixed aspect ratio.
-    ctx.drawImage(imgs[index], 0, 0);
+    try {
+      ctx.drawImage(imgs[index], 0, 0);
+    } catch (e) {
+      console.error('Frame render error:', e);
+    }
   };
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (images.length === FRAME_COUNT) {
-      const maxIndex = FRAME_COUNT - 1;
-      // Map scroll progress (0-1) to an index (0-89)
-      const frameIndex = Math.min(maxIndex, Math.max(0, Math.floor(latest * FRAME_COUNT)));
+    if (images.length > 0) {
+      const maxIndex = images.length - 1;
+      const frameIndex = Math.min(maxIndex, Math.max(0, Math.floor(latest * images.length)));
       drawFrame(images, frameIndex);
     }
   });
@@ -110,12 +110,12 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
   return (
     <div ref={containerRef} className="relative w-full h-[500vh]">
       {/* Sticky container that holds the canvas and stays in view */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-[#121212]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
         
         {/* Loading State */}
         {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#121212]">
-            <div className="text-white/50 animate-pulse text-sm tracking-widest font-mono">LOADING ASSETS...</div>
+          <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
+            <div className="text-white/50 dark:text-white/50 light:text-slate-500 animate-pulse text-sm tracking-widest font-mono">LOADING ASSETS...</div>
           </div>
         )}
 
@@ -126,10 +126,14 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
           style={{ opacity: isLoaded ? 1 : 0 }}
         />
         
-        {/* Overlay Over Canvas (In sticky container so it stays fixed relative to viewport, but we pass scrollYProgress to children to animate them based on scroll) */}
+        {/* Overlay Over Canvas - Passes container scrollYProgress to children */}
         {children && (
           <div className="absolute inset-0 w-full h-full pointer-events-none">
-            {children}
+            {React.Children.map(children, (child) =>
+              React.isValidElement(child)
+                ? React.cloneElement(child as React.ReactElement<{ containerScrollProgress?: typeof scrollYProgress }>, { containerScrollProgress: scrollYProgress })
+                : child
+            )}
           </div>
         )}
 

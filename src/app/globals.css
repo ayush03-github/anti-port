@@ -1,32 +1,160 @@
-@import url('https://fonts.cdnfonts.com/css/tan-buster');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@layer base {
-  body {
-    background-color: #121212;
-    color: white;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
+.font-cinzel {
+  font-family: 'Cinzel', serif;
 }
 
-/* Hide scrollbar for a cleaner look if desired, but default is fine */
-::-webkit-scrollbar {
-  width: 8px;
+.font-instrument {
+  font-family: 'Instrument Serif', serif;
 }
 
-::-webkit-scrollbar-track {
-  background: #121212;
+.font-space {
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+.font-playfair {
+  font-family: 'Playfair Display', serif;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.font-syne {
+  font-family: 'Syne', sans-serif;
 }
 
 .font-tan-buster {
   font-family: 'TAN-Buster', 'TAN Buster', serif;
+}
+
+/* Absolute universal cursor hide rule */
+*,
+*::before,
+*::after,
+html,
+body,
+a,
+button,
+input,
+textarea,
+select,
+iframe,
+canvas,
+[role="button"],
+.cursor-pointer,
+*:hover,
+*:active,
+*:focus {
+  cursor: none !important;
+}
+
+/* --- Base Theme Transitions --- */
+body, main, section, div, h1, h2, h3, p, span, button {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+/* --- DARK MODE (Default) --- */
+html, html.dark, html.dark body {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-family: 'Syne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Dark mode scrollbars */
+html.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #121212;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* --- LIGHT MODE OVERRIDES --- */
+html.light, html.light body {
+  background-color: #f8f9fa !important;
+  color: #0f172a !important;
+  font-family: 'Syne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Light mode scrollbars */
+html.light ::-webkit-scrollbar {
+  width: 8px;
+}
+html.light ::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Global Light Mode Target Overrides */
+html.light .bg-\[\#121212\],
+html.light .bg-\[\#080808\],
+html.light .bg-\[\#181818\],
+html.light .bg-\[\#1a1a1a\],
+html.light .bg-neutral-900 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-\[\#1e1e1e\] {
+  background-color: #ffffff !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .bg-\[\#141414\]\/70,
+html.light .bg-\[\#121212\]\/80,
+html.light .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Hover overlay background in light mode */
+html.light .bg-\[\#121212\]\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html.light .light\:text-slate-600 {
+  color: #475569 !important;
+}
+
+html.light .light\:text-slate-700 {
+  color: #334155 !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-neutral-300,
+html.light .text-neutral-400 {
+  color: #475569 !important;
+}
+
+html.light .text-white\/50,
+html.light .text-white\/40,
+html.light .text-white\/30 {
+  color: #64748b !important;
+}
+
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/20,
+html.light .border-white\/30 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Accent Amber Yellow for Light Mode Contrast */
+html.light .text-\[\#f5e156\] {
+  color: #d97706 !important;
+}
+
+html.light .border-\[\#f5e156\] {
+  border-color: #d97706 !important;
 }
