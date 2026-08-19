@@ -9,6 +9,7 @@ const playSynthPad = (type: 'glitch' | 'sub' | 'laser' | 'cyber' | 'random') => 
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
 
     if (type === 'glitch') {
@@ -81,7 +82,7 @@ const playSynthPad = (type: 'glitch' | 'sub' | 'laser' | 'cyber' | 'random') => 
 };
 
 const playgroundsList = [
-  { id: 1, tag: "01", title: "3D Intense Kinetic Tilt", desc: "Physics-based 3D clay orb with extreme rotational tilt (+60°/-60°) and spring momentum." },
+  { id: 1, tag: "01", title: "3D Kinetic Tilt Sculpture", desc: "Physics-based 3D clay orb with high-intensity rotational tilt (+60°/-60°) and 3D depth momentum." },
   { id: 2, tag: "02", title: "Web Audio Synth Studio", desc: "Generate browser-native synthesized audio waveforms using real-time Web Audio API oscillators." },
   { id: 3, tag: "03", title: "Generative Particle Canvas", desc: "Hover or drag across the viewport to stream glowing yellow particle clusters." },
   { id: 4, tag: "04", title: "Live Shader & Glass Studio", desc: "Interactive playground to tweak backdrop blur, glowing neon spread, and hue shifts in real-time." },
@@ -91,7 +92,7 @@ const playgroundsList = [
   { id: 8, tag: "08", title: "3D Cyberpunk Hologram Cube", desc: "Interactive 3D rotating neon wireframe hologram cube with customizable glow colors." },
   { id: 9, tag: "09", title: "Retro Audio Equalizer Spectrum", desc: "Animated 16-bar retro spectrum equalizer visualizer with custom bounce speed." },
   { id: 10, tag: "10", title: "Cybernetic Glitch Canvas", desc: "Real-time interactive canvas glitch generator with digital scanlines and RGB split on drag." },
-  { id: 11, tag: "11", title: "Solar Magnetic Plasma Field", desc: "150 glowing plasma particles swirling in orbital vortexes around your cursor." },
+  { id: 11, tag: "11", title: "Solar Magnetic Plasma Field", desc: "120 glowing plasma particles swirling in orbital vortexes around your cursor." },
   { id: 12, tag: "12", title: "Bouncy Physics Ball Sandbox", desc: "Interactive bouncy balls colliding with viewport boundaries under gravity physics." }
 ];
 
@@ -108,7 +109,7 @@ export default function Lab() {
 
   const currentPlayground = playgroundsList.find(p => p.id === activeId) || playgroundsList[0];
 
-  // --- EXPERIMENT 1: HIGH-INTENSITY 3D TILT STATE ---
+  // --- EXPERIMENT 1: 3D TILT ---
   const tiltCardRef = useRef<HTMLDivElement>(null);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
@@ -122,7 +123,6 @@ export default function Lab() {
     const rect = tiltCardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    // Increased tilt intensity to ±60 degrees
     rawX.set(y * -60);
     rawY.set(x * 60);
     setTiltDisplay({ rx: Math.round(y * -60), ry: Math.round(x * 60) });
@@ -134,79 +134,90 @@ export default function Lab() {
     setTiltDisplay({ rx: 0, ry: 0 });
   };
 
-  // --- EXPERIMENT 3: PARTICLE CANVAS (FIXED & HIGH PERFORMANCE) ---
+  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS ---
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
-  const particleContainerRef = useRef<HTMLDivElement>(null);
   const [activeParticlesCount, setActiveParticlesCount] = useState(0);
 
   useEffect(() => {
     if (activeId !== 3) return;
-    const canvas = particleCanvasRef.current;
-    const container = particleContainerRef.current;
-    if (!canvas || !container) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = particleCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    let animId: number;
-    const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number }> = [];
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    canvas.width = container.clientWidth || 500;
-    canvas.height = container.clientHeight || 360;
+      let animId: number;
+      const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number }> = [];
 
-    const addParticle = (x: number, y: number) => {
-      for (let i = 0; i < 4; i++) {
+      // Add initial ambient particles
+      for (let i = 0; i < 20; i++) {
         particles.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
-          radius: Math.random() * 5 + 2,
-          alpha: 1
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          radius: Math.random() * 4 + 2,
+          alpha: 0.8
         });
       }
-    };
 
-    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const posX = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
-      const posY = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
-      addParticle(posX, posY);
-    };
+      const addParticlesAt = (x: number, y: number) => {
+        for (let i = 0; i < 4; i++) {
+          particles.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            radius: Math.random() * 5 + 2,
+            alpha: 1
+          });
+        }
+      };
 
-    container.addEventListener('mousemove', handlePointerMove);
-    container.addEventListener('touchmove', handlePointerMove);
+      const handleMove = (e: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        addParticlesAt(e.clientX - rect.left, e.clientY - rect.top);
+      };
 
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= 0.025;
+      if (parent) parent.addEventListener('mousemove', handleMove);
 
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-          continue;
+      const render = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.015;
+
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(245, 225, 86, ${p.alpha})`;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = '#f5e156';
+          ctx.fill();
         }
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(245, 225, 86, ${p.alpha})`;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = '#f5e156';
-        ctx.fill();
-      }
+        setActiveParticlesCount(particles.length);
+        animId = requestAnimationFrame(render);
+      };
 
-      setActiveParticlesCount(particles.length);
-      animId = requestAnimationFrame(render);
-    };
+      render();
+      return () => {
+        if (parent) parent.removeEventListener('mousemove', handleMove);
+        cancelAnimationFrame(animId);
+      };
+    }, 50);
 
-    render();
-    return () => {
-      container.removeEventListener('mousemove', handlePointerMove);
-      container.removeEventListener('touchmove', handlePointerMove);
-      cancelAnimationFrame(animId);
-    };
+    return () => clearTimeout(timer);
   }, [activeId]);
 
   // --- EXPERIMENT 4: SHADER STUDIO ---
@@ -214,125 +225,131 @@ export default function Lab() {
   const [glowVal, setGlowVal] = useState(65);
   const [hueShift, setHueShift] = useState(0);
 
-  // --- EXPERIMENT 5: MATRIX DIGITAL RAIN ---
+  // --- EXPERIMENT 5: MATRIX RAIN ---
   const matrixCanvasRef = useRef<HTMLCanvasElement>(null);
   const [matrixSpeed, setMatrixSpeed] = useState(33);
 
   useEffect(() => {
     if (activeId !== 5) return;
-    const canvas = matrixCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = matrixCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ#@$%&*";
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops: number[] = Array(columns).fill(1);
+      const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ#@$%&*";
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops: number[] = Array(columns).fill(1);
 
-    const interval = setInterval(() => {
-      ctx.fillStyle = "rgba(8, 8, 8, 0.15)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const interval = setInterval(() => {
+        ctx.fillStyle = "rgba(8, 8, 8, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#f5e156";
-      ctx.font = `${fontSize}px monospace`;
+        ctx.fillStyle = "#f5e156";
+        ctx.font = `${fontSize}px monospace`;
 
-      for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        for (let i = 0; i < drops.length; i++) {
+          const text = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
         }
-        drops[i]++;
-      }
-    }, matrixSpeed);
+      }, matrixSpeed);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [activeId, matrixSpeed]);
 
-  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES (FIXED) ---
+  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES ---
   const nodeCanvasRef = useRef<HTMLCanvasElement>(null);
-  const nodeContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (activeId !== 6) return;
-    const canvas = nodeCanvasRef.current;
-    const container = nodeContainerRef.current;
-    if (!canvas || !container) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = nodeCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = container.clientWidth || 500;
-    canvas.height = container.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    let animId: number;
-    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+      let animId: number;
+      let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 
-    const nodes = Array.from({ length: 12 }, () => ({
-      x: Math.random() * (canvas.width - 40) + 20,
-      y: Math.random() * (canvas.height - 40) + 20,
-      vx: (Math.random() - 0.5) * 2.5,
-      vy: (Math.random() - 0.5) * 2.5,
-      baseRadius: Math.random() * 6 + 4,
-    }));
+      const nodes = Array.from({ length: 12 }, () => ({
+        x: Math.random() * (canvas.width - 40) + 20,
+        y: Math.random() * (canvas.height - 40) + 20,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        baseRadius: Math.random() * 6 + 4,
+      }));
 
-    const handleNodeMove = (e: MouseEvent | TouchEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
-      mouse.y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
-    };
+      const handleMove = (e: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      };
 
-    container.addEventListener('mousemove', handleNodeMove);
-    container.addEventListener('touchmove', handleNodeMove);
+      if (parent) parent.addEventListener('mousemove', handleMove);
 
-    const renderNodes = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const renderNodes = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      nodes.forEach((node) => {
-        const dx = mouse.x - node.x;
-        const dy = mouse.y - node.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        nodes.forEach((node) => {
+          const dx = mouse.x - node.x;
+          const dy = mouse.y - node.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 200) {
-          const force = (200 - dist) / 200;
-          node.x += (dx / dist) * force * 4;
-          node.y += (dy / dist) * force * 4;
+          if (dist < 180) {
+            const force = (180 - dist) / 180;
+            node.x += (dx / dist) * force * 3;
+            node.y += (dy / dist) * force * 3;
+
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(245, 225, 86, ${force * 0.8})`;
+            ctx.lineWidth = force * 2;
+            ctx.stroke();
+          }
+
+          node.x += node.vx;
+          node.y += node.vy;
+
+          if (node.x < 10 || node.x > canvas.width - 10) node.vx *= -1;
+          if (node.y < 10 || node.y > canvas.height - 10) node.vy *= -1;
 
           ctx.beginPath();
-          ctx.moveTo(node.x, node.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(245, 225, 86, ${force * 0.8})`;
-          ctx.lineWidth = force * 2.5;
-          ctx.stroke();
-        }
+          ctx.arc(node.x, node.y, node.baseRadius, 0, Math.PI * 2);
+          ctx.fillStyle = '#f5e156';
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = '#f5e156';
+          ctx.fill();
+        });
 
-        node.x += node.vx;
-        node.y += node.vy;
+        animId = requestAnimationFrame(renderNodes);
+      };
 
-        if (node.x < 10 || node.x > canvas.width - 10) node.vx *= -1;
-        if (node.y < 10 || node.y > canvas.height - 10) node.vy *= -1;
+      renderNodes();
+      return () => {
+        if (parent) parent.removeEventListener('mousemove', handleMove);
+        cancelAnimationFrame(animId);
+      };
+    }, 50);
 
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.baseRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#f5e156';
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#f5e156';
-        ctx.fill();
-      });
-
-      animId = requestAnimationFrame(renderNodes);
-    };
-
-    renderNodes();
-    return () => {
-      container.removeEventListener('mousemove', handleNodeMove);
-      container.removeEventListener('touchmove', handleNodeMove);
-      cancelAnimationFrame(animId);
-    };
+    return () => clearTimeout(timer);
   }, [activeId]);
 
   // --- EXPERIMENT 7: WATER RIPPLE ---
@@ -353,55 +370,60 @@ export default function Lab() {
 
   useEffect(() => {
     if (activeId !== 7) return;
-    const canvas = rippleCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = rippleCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    let animId: number;
+      let animId: number;
 
-    const renderRipples = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const renderRipples = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < canvas.width; x += 30) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += 30) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
-
-      for (let i = ripplesRef.current.length - 1; i >= 0; i--) {
-        const r = ripplesRef.current[i];
-        r.radius += 3.5;
-        r.alpha -= 0.015;
-
-        if (r.alpha <= 0) {
-          ripplesRef.current.splice(i, 1);
-          continue;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 30) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 30) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
         }
 
-        ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(245, 225, 86, ${r.alpha})`;
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#f5e156';
-        ctx.stroke();
-      }
+        for (let i = ripplesRef.current.length - 1; i >= 0; i--) {
+          const r = ripplesRef.current[i];
+          r.radius += 3.5;
+          r.alpha -= 0.015;
 
-      animId = requestAnimationFrame(renderRipples);
-    };
+          if (r.alpha <= 0) {
+            ripplesRef.current.splice(i, 1);
+            continue;
+          }
 
-    renderRipples();
-    return () => cancelAnimationFrame(animId);
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(245, 225, 86, ${r.alpha})`;
+          ctx.lineWidth = 3;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#f5e156';
+          ctx.stroke();
+        }
+
+        animId = requestAnimationFrame(renderRipples);
+      };
+
+      renderRipples();
+      return () => cancelAnimationFrame(animId);
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [activeId]);
 
-  // --- EXPERIMENT 8: 3D CYBERPUNK HOLOGRAM CUBE ---
+  // --- EXPERIMENT 8: 3D HOLOGRAM CUBE ---
   const [holoTheme, setHoloTheme] = useState<'amber' | 'cyan' | 'magenta' | 'green'>('amber');
 
   // --- EXPERIMENT 9: RETRO AUDIO EQUALIZER ---
@@ -416,109 +438,114 @@ export default function Lab() {
     return () => clearInterval(interval);
   }, [activeId, eqSpeed]);
 
-  // --- EXPERIMENT 10: CYBERNETIC GLITCH CANVAS ---
+  // --- EXPERIMENT 10: CYBER GLITCH ---
   const glitchCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isGlitching, setIsGlitching] = useState(false);
 
   useEffect(() => {
     if (activeId !== 10) return;
-    const canvas = glitchCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = glitchCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    let animId: number;
+      let animId: number;
 
-    const renderGlitch = () => {
-      ctx.fillStyle = '#080808';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const renderGlitch = () => {
+        ctx.fillStyle = '#080808';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.font = 'bold 36px monospace';
-      ctx.fillStyle = '#f5e156';
-      ctx.textAlign = 'center';
-      ctx.fillText('CYBER_GLITCH_V1', canvas.width / 2, canvas.height / 2);
+        ctx.font = 'bold 32px monospace';
+        ctx.fillStyle = '#f5e156';
+        ctx.textAlign = 'center';
+        ctx.fillText('CYBER_GLITCH_V1', canvas.width / 2, canvas.height / 2);
 
-      // Random glitch slice
-      if (Math.random() > 0.3 || isGlitching) {
-        const sliceY = Math.random() * canvas.height;
-        const sliceHeight = Math.random() * 30 + 5;
-        const offset = (Math.random() - 0.5) * 40;
-        ctx.drawImage(canvas, 0, sliceY, canvas.width, sliceHeight, offset, sliceY, canvas.width, sliceHeight);
-      }
+        if (Math.random() > 0.3 || isGlitching) {
+          const sliceY = Math.random() * canvas.height;
+          const sliceHeight = Math.random() * 30 + 5;
+          const offset = (Math.random() - 0.5) * 40;
+          ctx.drawImage(canvas, 0, sliceY, canvas.width, sliceHeight, offset, sliceY, canvas.width, sliceHeight);
+        }
 
-      animId = requestAnimationFrame(renderGlitch);
-    };
+        animId = requestAnimationFrame(renderGlitch);
+      };
 
-    renderGlitch();
-    return () => cancelAnimationFrame(animId);
+      renderGlitch();
+      return () => cancelAnimationFrame(animId);
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [activeId, isGlitching]);
 
-  // --- EXPERIMENT 11: SOLAR PLASMA FIELD ---
+  // --- EXPERIMENT 11: SOLAR PLASMA ---
   const plasmaCanvasRef = useRef<HTMLCanvasElement>(null);
-  const plasmaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (activeId !== 11) return;
-    const canvas = plasmaCanvasRef.current;
-    const container = plasmaContainerRef.current;
-    if (!canvas || !container) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = plasmaCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = container.clientWidth || 500;
-    canvas.height = container.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    let animId: number;
-    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+      let animId: number;
+      let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 
-    const particles = Array.from({ length: 120 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      angle: Math.random() * Math.PI * 2,
-      speed: Math.random() * 2 + 1,
-      radius: Math.random() * 3 + 1,
-    }));
+      const particles = Array.from({ length: 120 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        angle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 2 + 1,
+        radius: Math.random() * 3 + 1,
+      }));
 
-    const handlePlasmaMove = (e: MouseEvent | TouchEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
-      mouse.y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
-    };
+      const handleMove = (e: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      };
 
-    container.addEventListener('mousemove', handlePlasmaMove);
-    container.addEventListener('touchmove', handlePlasmaMove);
+      if (parent) parent.addEventListener('mousemove', handleMove);
 
-    const renderPlasma = () => {
-      ctx.fillStyle = 'rgba(8, 8, 8, 0.2)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const renderPlasma = () => {
+        ctx.fillStyle = 'rgba(8, 8, 8, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((p) => {
-        p.angle += 0.03;
-        const targetX = mouse.x + Math.cos(p.angle) * 80;
-        const targetY = mouse.y + Math.sin(p.angle) * 80;
-        p.x += (targetX - p.x) * 0.05;
-        p.y += (targetY - p.y) * 0.05;
+        particles.forEach((p) => {
+          p.angle += 0.03;
+          const targetX = mouse.x + Math.cos(p.angle) * 80;
+          const targetY = mouse.y + Math.sin(p.angle) * 80;
+          p.x += (targetX - p.x) * 0.05;
+          p.y += (targetY - p.y) * 0.05;
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#f5e156';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#f5e156';
-        ctx.fill();
-      });
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = '#f5e156';
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#f5e156';
+          ctx.fill();
+        });
 
-      animId = requestAnimationFrame(renderPlasma);
-    };
+        animId = requestAnimationFrame(renderPlasma);
+      };
 
-    renderPlasma();
-    return () => {
-      container.removeEventListener('mousemove', handlePlasmaMove);
-      container.removeEventListener('touchmove', handlePlasmaMove);
-      cancelAnimationFrame(animId);
-    };
+      renderPlasma();
+      return () => {
+        if (parent) parent.removeEventListener('mousemove', handleMove);
+        cancelAnimationFrame(animId);
+      };
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [activeId]);
 
   // --- EXPERIMENT 12: BOUNCY PHYSICS BALLS ---
@@ -526,47 +553,52 @@ export default function Lab() {
 
   useEffect(() => {
     if (activeId !== 12) return;
-    const canvas = ballCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const timer = setTimeout(() => {
+      const canvas = ballCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 360;
+      const parent = canvas.parentElement;
+      canvas.width = parent?.clientWidth || 500;
+      canvas.height = parent?.clientHeight || 360;
 
-    let animId: number;
-    const balls = Array.from({ length: 15 }, () => ({
-      x: Math.random() * (canvas.width - 40) + 20,
-      y: Math.random() * (canvas.height - 40) + 20,
-      vx: (Math.random() - 0.5) * 6,
-      vy: (Math.random() - 0.5) * 6,
-      radius: Math.random() * 12 + 8,
-      color: ['#f5e156', '#38bdf8', '#a855f7', '#10b981'][Math.floor(Math.random() * 4)]
-    }));
+      let animId: number;
+      const balls = Array.from({ length: 15 }, () => ({
+        x: Math.random() * (canvas.width - 40) + 20,
+        y: Math.random() * (canvas.height - 40) + 20,
+        vx: (Math.random() - 0.5) * 6,
+        vy: (Math.random() - 0.5) * 6,
+        radius: Math.random() * 12 + 8,
+        color: ['#f5e156', '#38bdf8', '#a855f7', '#10b981'][Math.floor(Math.random() * 4)]
+      }));
 
-    const renderBalls = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const renderBalls = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      balls.forEach((b) => {
-        b.x += b.vx;
-        b.y += b.vy;
+        balls.forEach((b) => {
+          b.x += b.vx;
+          b.y += b.vy;
 
-        if (b.x - b.radius < 0 || b.x + b.radius > canvas.width) b.vx *= -0.95;
-        if (b.y - b.radius < 0 || b.y + b.radius > canvas.height) b.vy *= -0.95;
+          if (b.x - b.radius < 0 || b.x + b.radius > canvas.width) b.vx *= -0.95;
+          if (b.y - b.radius < 0 || b.y + b.radius > canvas.height) b.vy *= -0.95;
 
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-        ctx.fillStyle = b.color;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = b.color;
-        ctx.fill();
-      });
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+          ctx.fillStyle = b.color;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = b.color;
+          ctx.fill();
+        });
 
-      animId = requestAnimationFrame(renderBalls);
-    };
+        animId = requestAnimationFrame(renderBalls);
+      };
 
-    renderBalls();
-    return () => cancelAnimationFrame(animId);
+      renderBalls();
+      return () => cancelAnimationFrame(animId);
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [activeId]);
 
   // Audio synth pad trigger
@@ -651,10 +683,10 @@ export default function Lab() {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
                 className="w-full h-full flex flex-col justify-center items-center relative z-10"
               >
-                {/* 01: High-Intensity 3D Kinetic Tilt */}
+                {/* 01: 3D Kinetic Tilt */}
                 {activeId === 1 && (
                   <div 
                     ref={tiltCardRef}
@@ -699,11 +731,11 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 03: Particle Canvas (Fixed Event Listener) */}
+                {/* 03: Particle Canvas */}
                 {activeId === 3 && (
-                  <div ref={particleContainerRef} className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
-                    <canvas ref={particleCanvasRef} className="w-full h-full block pointer-events-none" />
-                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Hover or drag to stream particles ⚡</div>
+                  <div className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={particleCanvasRef} className="w-full h-full block" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Hover mouse across viewport to stream particles ⚡</div>
                   </div>
                 )}
 
@@ -733,10 +765,10 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 06: Magnetic Physics Nodes (Fixed Event Listener) */}
+                {/* 06: Magnetic Physics Nodes */}
                 {activeId === 6 && (
-                  <div ref={nodeContainerRef} className="w-full h-[360px] bg-[#0d0d0d] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
-                    <canvas ref={nodeCanvasRef} className="w-full h-full block pointer-events-none" />
+                  <div className="w-full h-[360px] bg-[#0d0d0d] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={nodeCanvasRef} className="w-full h-full block" />
                     <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Move cursor to magnetize nodes 🧲</div>
                   </div>
                 )}
@@ -748,7 +780,7 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 08: NEW 3D Cyberpunk Hologram Cube */}
+                {/* 08: 3D Hologram Cube */}
                 {activeId === 8 && (
                   <div className="w-full h-[360px] bg-[#0c0c0c] rounded-3xl border border-white/10 flex items-center justify-center relative overflow-hidden" style={{ perspective: "800px" }}>
                     <motion.div
@@ -802,8 +834,8 @@ export default function Lab() {
 
                 {/* 11: Solar Plasma Field */}
                 {activeId === 11 && (
-                  <div ref={plasmaContainerRef} className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
-                    <canvas ref={plasmaCanvasRef} className="w-full h-full block pointer-events-none" />
+                  <div className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={plasmaCanvasRef} className="w-full h-full block" />
                     <div className="absolute top-4 left-4 font-mono text-[10px] text-[#f5e156] uppercase">Move cursor to swirl solar plasma vortex ☀️</div>
                   </div>
                 )}
