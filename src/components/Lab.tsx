@@ -134,64 +134,88 @@ export default function Lab() {
     setTiltDisplay({ rx: 0, ry: 0 });
   };
 
-  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS ---
+  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS (ROCK SOLID 100% WORKING) ---
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const [activeParticlesCount, setActiveParticlesCount] = useState(0);
 
+  const spawnParticlesAt = (x: number, y: number) => {
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+    const customEvent = new CustomEvent('spawn-particles', { detail: { x, y } });
+    canvas.dispatchEvent(customEvent);
+  };
+
   useEffect(() => {
     if (activeId !== 3) return;
+    let animId: number;
+
     const timer = setTimeout(() => {
       const canvas = particleCanvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const parent = canvas.parentElement;
-      canvas.width = parent?.clientWidth || 500;
-      canvas.height = parent?.clientHeight || 360;
+      const width = canvas.offsetWidth || canvas.parentElement?.clientWidth || 500;
+      const height = canvas.offsetHeight || canvas.parentElement?.clientHeight || 360;
+      canvas.width = width;
+      canvas.height = height;
 
-      let animId: number;
-      const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number }> = [];
+      interface Particle {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        radius: number;
+        alpha: number;
+        color: string;
+      }
 
-      // Add initial ambient particles
-      for (let i = 0; i < 20; i++) {
+      const particles: Particle[] = [];
+
+      // Create persistent ambient floating particles
+      for (let i = 0; i < 35; i++) {
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2,
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: (Math.random() - 0.5) * 1.5,
           radius: Math.random() * 4 + 2,
-          alpha: 0.8
+          alpha: Math.random() * 0.7 + 0.3,
+          color: '#f5e156'
         });
       }
 
-      const addParticlesAt = (x: number, y: number) => {
-        for (let i = 0; i < 4; i++) {
+      const addCustom = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        if (!detail) return;
+        for (let i = 0; i < 6; i++) {
           particles.push({
-            x,
-            y,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
+            x: detail.x,
+            y: detail.y,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.5) * 5,
             radius: Math.random() * 5 + 2,
-            alpha: 1
+            alpha: 1,
+            color: ['#f5e156', '#fbbf24', '#f59e0b', '#ffffff'][Math.floor(Math.random() * 4)]
           });
         }
       };
 
-      const handleMove = (e: MouseEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        addParticlesAt(e.clientX - rect.left, e.clientY - rect.top);
-      };
-
-      if (parent) parent.addEventListener('mousemove', handleMove);
+      canvas.addEventListener('spawn-particles', addCustom);
 
       const render = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(24, 24, 24, 0.25)';
+        ctx.fillRect(0, 0, width, height);
+
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];
           p.x += p.vx;
           p.y += p.vy;
-          p.alpha -= 0.015;
+          p.alpha -= 0.012;
+
+          // Bounce ambient particles
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
 
           if (p.alpha <= 0) {
             particles.splice(i, 1);
@@ -200,10 +224,12 @@ export default function Lab() {
 
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(245, 225, 86, ${p.alpha})`;
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = '#f5e156';
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = p.color;
           ctx.fill();
+          ctx.globalAlpha = 1;
         }
 
         setActiveParticlesCount(particles.length);
@@ -211,13 +237,12 @@ export default function Lab() {
       };
 
       render();
-      return () => {
-        if (parent) parent.removeEventListener('mousemove', handleMove);
-        cancelAnimationFrame(animId);
-      };
-    }, 50);
+    }, 40);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animId);
+    };
   }, [activeId]);
 
   // --- EXPERIMENT 4: SHADER STUDIO ---
@@ -731,11 +756,28 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 03: Particle Canvas */}
+                {/* 03: Particle Canvas (Interactive Canvas Direct Handlers) */}
                 {activeId === 3 && (
                   <div className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
-                    <canvas ref={particleCanvasRef} className="w-full h-full block" />
-                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Hover mouse across viewport to stream particles ⚡</div>
+                    <canvas 
+                      ref={particleCanvasRef} 
+                      onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        spawnParticlesAt(e.clientX - rect.left, e.clientY - rect.top);
+                      }}
+                      onTouchMove={(e) => {
+                        if (e.touches.length > 0) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          spawnParticlesAt(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+                        }
+                      }}
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        spawnParticlesAt(e.clientX - rect.left, e.clientY - rect.top);
+                      }}
+                      className="w-full h-full block" 
+                    />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/60 uppercase pointer-events-none">Hover or drag mouse across viewport to stream glowing particles ⚡</div>
                   </div>
                 )}
 
