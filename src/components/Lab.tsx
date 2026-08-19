@@ -81,15 +81,18 @@ const playSynthPad = (type: 'glitch' | 'sub' | 'laser' | 'cyber' | 'random') => 
 };
 
 const playgroundsList = [
-  { id: 1, tag: "01", title: "3D Kinetic Tilt Sculpture", desc: "Physics-based 3D clay orb that rotates dynamically based on cursor position and spring momentum." },
+  { id: 1, tag: "01", title: "3D Intense Kinetic Tilt", desc: "Physics-based 3D clay orb with extreme rotational tilt (+60°/-60°) and spring momentum." },
   { id: 2, tag: "02", title: "Web Audio Synth Studio", desc: "Generate browser-native synthesized audio waveforms using real-time Web Audio API oscillators." },
   { id: 3, tag: "03", title: "Generative Particle Canvas", desc: "Hover or drag across the viewport to stream glowing yellow particle clusters." },
   { id: 4, tag: "04", title: "Live Shader & Glass Studio", desc: "Interactive playground to tweak backdrop blur, glowing neon spread, and hue shifts in real-time." },
   { id: 5, tag: "05", title: "Matrix Cyber Digital Rain", desc: "Classic 8-bit digital rain canvas with speed and character density controls." },
   { id: 6, tag: "06", title: "Magnetic Physics Nodes", desc: "Interactive node graph where floating energy nodes magnetize towards your cursor." },
   { id: 7, tag: "07", title: "Interactive Water Ripple Surface", desc: "Click anywhere inside the viewport to generate expanding 2D shockwaves on a fluid grid." },
-  { id: 8, tag: "08", title: "3D Clay Morphing Sculpture", desc: "Interactive geometric clay shape that morphs between Sphere, Torus, Cube, and Diamond." },
-  { id: 9, tag: "09", title: "Retro Audio Equalizer Spectrum", desc: "Animated 16-bar retro spectrum equalizer visualizer with custom bounce speed." }
+  { id: 8, tag: "08", title: "3D Cyberpunk Hologram Cube", desc: "Interactive 3D rotating neon wireframe hologram cube with customizable glow colors." },
+  { id: 9, tag: "09", title: "Retro Audio Equalizer Spectrum", desc: "Animated 16-bar retro spectrum equalizer visualizer with custom bounce speed." },
+  { id: 10, tag: "10", title: "Cybernetic Glitch Canvas", desc: "Real-time interactive canvas glitch generator with digital scanlines and RGB split on drag." },
+  { id: 11, tag: "11", title: "Solar Magnetic Plasma Field", desc: "150 glowing plasma particles swirling in orbital vortexes around your cursor." },
+  { id: 12, tag: "12", title: "Bouncy Physics Ball Sandbox", desc: "Interactive bouncy balls colliding with viewport boundaries under gravity physics." }
 ];
 
 export default function Lab() {
@@ -105,11 +108,11 @@ export default function Lab() {
 
   const currentPlayground = playgroundsList.find(p => p.id === activeId) || playgroundsList[0];
 
-  // --- EXPERIMENT 1: 3D TILT STATE ---
+  // --- EXPERIMENT 1: HIGH-INTENSITY 3D TILT STATE ---
   const tiltCardRef = useRef<HTMLDivElement>(null);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
-  const springConfig = { damping: 20, stiffness: 150 };
+  const springConfig = { damping: 14, stiffness: 220, mass: 0.2 };
   const tiltX = useSpring(rawX, springConfig);
   const tiltY = useSpring(rawY, springConfig);
   const [tiltDisplay, setTiltDisplay] = useState({ rx: 0, ry: 0 });
@@ -119,9 +122,10 @@ export default function Lab() {
     const rect = tiltCardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    rawX.set(y * -35);
-    rawY.set(x * 35);
-    setTiltDisplay({ rx: Math.round(y * -35), ry: Math.round(x * 35) });
+    // Increased tilt intensity to ±60 degrees
+    rawX.set(y * -60);
+    rawY.set(x * 60);
+    setTiltDisplay({ rx: Math.round(y * -60), ry: Math.round(x * 60) });
   };
 
   const handleTiltMouseLeave = () => {
@@ -130,45 +134,47 @@ export default function Lab() {
     setTiltDisplay({ rx: 0, ry: 0 });
   };
 
-  // --- EXPERIMENT 3: PARTICLE CANVAS ---
+  // --- EXPERIMENT 3: PARTICLE CANVAS (FIXED & HIGH PERFORMANCE) ---
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
+  const particleContainerRef = useRef<HTMLDivElement>(null);
   const [activeParticlesCount, setActiveParticlesCount] = useState(0);
 
   useEffect(() => {
     if (activeId !== 3) return;
     const canvas = particleCanvasRef.current;
-    if (!canvas) return;
+    const container = particleContainerRef.current;
+    if (!canvas || !container) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animId: number;
     const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number }> = [];
 
-    const resize = () => {
-      canvas.width = canvas.parentElement?.clientWidth || 500;
-      canvas.height = canvas.parentElement?.clientHeight || 400;
-    };
-    resize();
+    canvas.width = container.clientWidth || 500;
+    canvas.height = container.clientHeight || 360;
 
     const addParticle = (x: number, y: number) => {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 4; i++) {
         particles.push({
           x,
           y,
-          vx: (Math.random() - 0.5) * 3.5,
-          vy: (Math.random() - 0.5) * 3.5,
-          radius: Math.random() * 4 + 2,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          radius: Math.random() * 5 + 2,
           alpha: 1
         });
       }
     };
 
-    const handleCanvasMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      addParticle(e.clientX - rect.left, e.clientY - rect.top);
+      const posX = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
+      const posY = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
+      addParticle(posX, posY);
     };
 
-    canvas.addEventListener('mousemove', handleCanvasMove);
+    container.addEventListener('mousemove', handlePointerMove);
+    container.addEventListener('touchmove', handlePointerMove);
 
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -176,7 +182,7 @@ export default function Lab() {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha -= 0.02;
+        p.alpha -= 0.025;
 
         if (p.alpha <= 0) {
           particles.splice(i, 1);
@@ -192,13 +198,14 @@ export default function Lab() {
       }
 
       setActiveParticlesCount(particles.length);
-      animationFrameId = requestAnimationFrame(render);
+      animId = requestAnimationFrame(render);
     };
 
     render();
     return () => {
-      canvas.removeEventListener('mousemove', handleCanvasMove);
-      cancelAnimationFrame(animationFrameId);
+      container.removeEventListener('mousemove', handlePointerMove);
+      container.removeEventListener('touchmove', handlePointerMove);
+      cancelAnimationFrame(animId);
     };
   }, [activeId]);
 
@@ -219,7 +226,7 @@ export default function Lab() {
     if (!ctx) return;
 
     canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 400;
+    canvas.height = canvas.parentElement?.clientHeight || 360;
 
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ#@$%&*";
     const fontSize = 14;
@@ -247,37 +254,40 @@ export default function Lab() {
     return () => clearInterval(interval);
   }, [activeId, matrixSpeed]);
 
-  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES ---
+  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES (FIXED) ---
   const nodeCanvasRef = useRef<HTMLCanvasElement>(null);
+  const nodeContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (activeId !== 6) return;
     const canvas = nodeCanvasRef.current;
-    if (!canvas) return;
+    const container = nodeContainerRef.current;
+    if (!canvas || !container) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 400;
+    canvas.width = container.clientWidth || 500;
+    canvas.height = container.clientHeight || 360;
 
     let animId: number;
     let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 
-    const nodes = Array.from({ length: 9 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 2,
+    const nodes = Array.from({ length: 12 }, () => ({
+      x: Math.random() * (canvas.width - 40) + 20,
+      y: Math.random() * (canvas.height - 40) + 20,
+      vx: (Math.random() - 0.5) * 2.5,
+      vy: (Math.random() - 0.5) * 2.5,
       baseRadius: Math.random() * 6 + 4,
     }));
 
-    const handleNodeMouseMove = (e: MouseEvent) => {
+    const handleNodeMove = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      mouse.x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
+      mouse.y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
     };
 
-    canvas.addEventListener('mousemove', handleNodeMouseMove);
+    container.addEventListener('mousemove', handleNodeMove);
+    container.addEventListener('touchmove', handleNodeMove);
 
     const renderNodes = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -287,17 +297,16 @@ export default function Lab() {
         const dy = mouse.y - node.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 180) {
-          const force = (180 - dist) / 180;
-          node.x += (dx / dist) * force * 3;
-          node.y += (dy / dist) * force * 3;
+        if (dist < 200) {
+          const force = (200 - dist) / 200;
+          node.x += (dx / dist) * force * 4;
+          node.y += (dy / dist) * force * 4;
 
-          // Draw spring tension line
           ctx.beginPath();
           ctx.moveTo(node.x, node.y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(245, 225, 86, ${force * 0.7})`;
-          ctx.lineWidth = force * 2;
+          ctx.strokeStyle = `rgba(245, 225, 86, ${force * 0.8})`;
+          ctx.lineWidth = force * 2.5;
           ctx.stroke();
         }
 
@@ -320,7 +329,8 @@ export default function Lab() {
 
     renderNodes();
     return () => {
-      canvas.removeEventListener('mousemove', handleNodeMouseMove);
+      container.removeEventListener('mousemove', handleNodeMove);
+      container.removeEventListener('touchmove', handleNodeMove);
       cancelAnimationFrame(animId);
     };
   }, [activeId]);
@@ -349,14 +359,13 @@ export default function Lab() {
     if (!ctx) return;
 
     canvas.width = canvas.parentElement?.clientWidth || 500;
-    canvas.height = canvas.parentElement?.clientHeight || 400;
+    canvas.height = canvas.parentElement?.clientHeight || 360;
 
     let animId: number;
 
     const renderRipples = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid background
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 1;
       for (let x = 0; x < canvas.width; x += 30) {
@@ -392,8 +401,8 @@ export default function Lab() {
     return () => cancelAnimationFrame(animId);
   }, [activeId]);
 
-  // --- EXPERIMENT 8: 3D CLAY MORPHING SHAPE ---
-  const [clayShape, setClayShape] = useState<'orb' | 'cube' | 'diamond' | 'capsule'>('orb');
+  // --- EXPERIMENT 8: 3D CYBERPUNK HOLOGRAM CUBE ---
+  const [holoTheme, setHoloTheme] = useState<'amber' | 'cyan' | 'magenta' | 'green'>('amber');
 
   // --- EXPERIMENT 9: RETRO AUDIO EQUALIZER ---
   const [eqSpeed, setEqSpeed] = useState(1);
@@ -406,6 +415,159 @@ export default function Lab() {
     }, 150 / eqSpeed);
     return () => clearInterval(interval);
   }, [activeId, eqSpeed]);
+
+  // --- EXPERIMENT 10: CYBERNETIC GLITCH CANVAS ---
+  const glitchCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [isGlitching, setIsGlitching] = useState(false);
+
+  useEffect(() => {
+    if (activeId !== 10) return;
+    const canvas = glitchCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.parentElement?.clientWidth || 500;
+    canvas.height = canvas.parentElement?.clientHeight || 360;
+
+    let animId: number;
+
+    const renderGlitch = () => {
+      ctx.fillStyle = '#080808';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = 'bold 36px monospace';
+      ctx.fillStyle = '#f5e156';
+      ctx.textAlign = 'center';
+      ctx.fillText('CYBER_GLITCH_V1', canvas.width / 2, canvas.height / 2);
+
+      // Random glitch slice
+      if (Math.random() > 0.3 || isGlitching) {
+        const sliceY = Math.random() * canvas.height;
+        const sliceHeight = Math.random() * 30 + 5;
+        const offset = (Math.random() - 0.5) * 40;
+        ctx.drawImage(canvas, 0, sliceY, canvas.width, sliceHeight, offset, sliceY, canvas.width, sliceHeight);
+      }
+
+      animId = requestAnimationFrame(renderGlitch);
+    };
+
+    renderGlitch();
+    return () => cancelAnimationFrame(animId);
+  }, [activeId, isGlitching]);
+
+  // --- EXPERIMENT 11: SOLAR PLASMA FIELD ---
+  const plasmaCanvasRef = useRef<HTMLCanvasElement>(null);
+  const plasmaContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeId !== 11) return;
+    const canvas = plasmaCanvasRef.current;
+    const container = plasmaContainerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = container.clientWidth || 500;
+    canvas.height = container.clientHeight || 360;
+
+    let animId: number;
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+    const particles = Array.from({ length: 120 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      angle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 2 + 1,
+      radius: Math.random() * 3 + 1,
+    }));
+
+    const handlePlasmaMove = (e: MouseEvent | TouchEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
+      mouse.y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
+    };
+
+    container.addEventListener('mousemove', handlePlasmaMove);
+    container.addEventListener('touchmove', handlePlasmaMove);
+
+    const renderPlasma = () => {
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.angle += 0.03;
+        const targetX = mouse.x + Math.cos(p.angle) * 80;
+        const targetY = mouse.y + Math.sin(p.angle) * 80;
+        p.x += (targetX - p.x) * 0.05;
+        p.y += (targetY - p.y) * 0.05;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#f5e156';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#f5e156';
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(renderPlasma);
+    };
+
+    renderPlasma();
+    return () => {
+      container.removeEventListener('mousemove', handlePlasmaMove);
+      container.removeEventListener('touchmove', handlePlasmaMove);
+      cancelAnimationFrame(animId);
+    };
+  }, [activeId]);
+
+  // --- EXPERIMENT 12: BOUNCY PHYSICS BALLS ---
+  const ballCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (activeId !== 12) return;
+    const canvas = ballCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.parentElement?.clientWidth || 500;
+    canvas.height = canvas.parentElement?.clientHeight || 360;
+
+    let animId: number;
+    const balls = Array.from({ length: 15 }, () => ({
+      x: Math.random() * (canvas.width - 40) + 20,
+      y: Math.random() * (canvas.height - 40) + 20,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      radius: Math.random() * 12 + 8,
+      color: ['#f5e156', '#38bdf8', '#a855f7', '#10b981'][Math.floor(Math.random() * 4)]
+    }));
+
+    const renderBalls = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      balls.forEach((b) => {
+        b.x += b.vx;
+        b.y += b.vy;
+
+        if (b.x - b.radius < 0 || b.x + b.radius > canvas.width) b.vx *= -0.95;
+        if (b.y - b.radius < 0 || b.y + b.radius > canvas.height) b.vy *= -0.95;
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = b.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = b.color;
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(renderBalls);
+    };
+
+    renderBalls();
+    return () => cancelAnimationFrame(animId);
+  }, [activeId]);
 
   // Audio synth pad trigger
   const [activePad, setActivePad] = useState<string | null>(null);
@@ -438,7 +600,7 @@ export default function Lab() {
       <div className="relative z-10 max-w-7xl mx-auto">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-200 font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-4">
               <span className="w-2 h-2 rounded-full bg-[#f5e156] dark:bg-[#f5e156] light:bg-amber-500 animate-ping" />
@@ -460,13 +622,13 @@ export default function Lab() {
           </button>
         </div>
 
-        {/* Playground Selector Tabs */}
-        {/* <div className="flex flex-wrap gap-2.5 mb-10 overflow-x-auto pb-2 scrollbar-none">
+        {/* Playground Selector Tabs (12 Interactive Playgrounds!) */}
+        <div className="flex flex-wrap gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
           {playgroundsList.map((item) => (
             <button
               key={item.id}
               onClick={() => { playSynthPad('random'); setActiveId(item.id); }}
-              className={`px-4 py-2 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-full font-mono text-[11px] uppercase tracking-wider transition-all duration-200 cursor-pointer whitespace-nowrap ${
                 activeId === item.id
                   ? 'bg-[#f5e156] text-black font-bold shadow-lg scale-105'
                   : 'bg-[#181818] dark:bg-[#181818] light:bg-white text-white/70 dark:text-white/70 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-300 hover:text-[#f5e156] dark:hover:text-[#f5e156] light:hover:text-amber-600'
@@ -475,7 +637,7 @@ export default function Lab() {
               <span>{item.tag}</span> : <span className="font-space">{item.title.split(' ')[0]}</span>
             </button>
           ))}
-        </div> */}
+        </div>
 
         {/* MAIN LAYOUT: Playground Viewport (Left 60%) + Details & Controls Panel (Right 40%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -492,7 +654,7 @@ export default function Lab() {
                 transition={{ duration: 0.3 }}
                 className="w-full h-full flex flex-col justify-center items-center relative z-10"
               >
-                {/* 01: 3D Kinetic Tilt */}
+                {/* 01: High-Intensity 3D Kinetic Tilt */}
                 {activeId === 1 && (
                   <div 
                     ref={tiltCardRef}
@@ -501,12 +663,15 @@ export default function Lab() {
                     className="relative w-full h-[360px] bg-[#1a1a1a] dark:bg-[#1a1a1a] light:bg-slate-100 rounded-3xl border border-white/10 dark:border-white/10 light:border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden group select-none transition-colors duration-300"
                     style={{ perspective: "1000px" }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#f5e156]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#f5e156]/20 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <motion.div
-                      style={{ rotateX: tiltX, rotateY: tiltY }}
-                      className="w-40 h-40 rounded-full bg-gradient-to-br from-[#eaeaea] to-[#888888] shadow-2xl flex items-center justify-center border border-white/30"
+                      style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}
+                      className="w-44 h-44 rounded-full bg-gradient-to-br from-[#ffffff] via-[#eaeaea] to-[#666666] shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex items-center justify-center border-2 border-white/40"
                     >
-                      <div className="w-20 h-20 rounded-full bg-[#f5e156] shadow-[0_0_30px_rgba(245,225,86,0.95),inset_2px_2px_6px_rgba(255,255,255,0.9)] animate-pulse" />
+                      <div 
+                        className="w-24 h-24 rounded-full bg-[#f5e156] shadow-[0_0_40px_rgba(245,225,86,1),inset_2px_2px_8px_rgba(255,255,255,1)] animate-pulse"
+                        style={{ transform: "translateZ(60px)" }}
+                      />
                     </motion.div>
                   </div>
                 )}
@@ -534,10 +699,11 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 03: Particle Canvas */}
+                {/* 03: Particle Canvas (Fixed Event Listener) */}
                 {activeId === 3 && (
-                  <div className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair">
-                    <canvas ref={particleCanvasRef} className="w-full h-full block" />
+                  <div ref={particleContainerRef} className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={particleCanvasRef} className="w-full h-full block pointer-events-none" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Hover or drag to stream particles ⚡</div>
                   </div>
                 )}
 
@@ -567,10 +733,11 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 06: Physics Nodes */}
+                {/* 06: Magnetic Physics Nodes (Fixed Event Listener) */}
                 {activeId === 6 && (
-                  <div className="w-full h-[360px] bg-[#0d0d0d] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair">
-                    <canvas ref={nodeCanvasRef} className="w-full h-full block" />
+                  <div ref={nodeContainerRef} className="w-full h-[360px] bg-[#0d0d0d] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={nodeCanvasRef} className="w-full h-full block pointer-events-none" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase">Move cursor to magnetize nodes 🧲</div>
                   </div>
                 )}
 
@@ -581,23 +748,27 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 08: 3D Clay Morphing */}
+                {/* 08: NEW 3D Cyberpunk Hologram Cube */}
                 {activeId === 8 && (
-                  <div className="w-full h-[360px] bg-[#1a1a1a] dark:bg-[#1a1a1a] light:bg-slate-100 rounded-3xl border border-white/10 flex items-center justify-center relative overflow-hidden">
+                  <div className="w-full h-[360px] bg-[#0c0c0c] rounded-3xl border border-white/10 flex items-center justify-center relative overflow-hidden" style={{ perspective: "800px" }}>
                     <motion.div
                       animate={{
-                        rotate: [0, 180, 360],
-                        scale: [0.95, 1.05, 0.95]
+                        rotateX: [0, 360],
+                        rotateY: [0, 360],
+                        rotateZ: [0, 180]
                       }}
-                      transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                      className={`shadow-2xl flex items-center justify-center transition-all duration-700 ${
-                        clayShape === 'orb' ? 'w-36 h-36 rounded-full bg-gradient-to-br from-[#f5e156] to-[#d97706]' :
-                        clayShape === 'cube' ? 'w-32 h-32 rounded-2xl bg-gradient-to-br from-[#38bdf8] to-[#0284c7]' :
-                        clayShape === 'diamond' ? 'w-32 h-32 rotate-45 rounded-lg bg-gradient-to-br from-[#a855f7] to-[#7e22ce]' :
-                        'w-44 h-24 rounded-full bg-gradient-to-br from-[#10b981] to-[#047857]'
+                      transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+                      className={`w-36 h-36 border-2 flex items-center justify-center transition-all duration-500 ${
+                        holoTheme === 'amber' ? 'border-[#f5e156] shadow-[0_0_40px_rgba(245,225,86,0.6)]' :
+                        holoTheme === 'cyan' ? 'border-[#38bdf8] shadow-[0_0_40px_rgba(56,189,248,0.6)]' :
+                        holoTheme === 'magenta' ? 'border-[#a855f7] shadow-[0_0_40px_rgba(168,85,247,0.6)]' :
+                        'border-[#10b981] shadow-[0_0_40px_rgba(16,185,129,0.6)]'
                       }`}
+                      style={{ transformStyle: "preserve-3d" }}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-md animate-ping" />
+                      <div className="w-20 h-20 border border-white/40 rotate-45 flex items-center justify-center">
+                        <div className="w-8 h-8 bg-white/80 rounded-full animate-ping" />
+                      </div>
                     </motion.div>
                   </div>
                 )}
@@ -614,6 +785,33 @@ export default function Lab() {
                         />
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* 10: Cybernetic Glitch Canvas */}
+                {activeId === 10 && (
+                  <div 
+                    onMouseDown={() => setIsGlitching(true)}
+                    onMouseUp={() => setIsGlitching(false)}
+                    className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden cursor-pointer relative"
+                  >
+                    <canvas ref={glitchCanvasRef} className="w-full h-full block pointer-events-none" />
+                    <div className="absolute bottom-4 left-4 font-mono text-[10px] text-[#f5e156] uppercase">Hold click to trigger intense RGB glitch ⚡</div>
+                  </div>
+                )}
+
+                {/* 11: Solar Plasma Field */}
+                {activeId === 11 && (
+                  <div ref={plasmaContainerRef} className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative">
+                    <canvas ref={plasmaCanvasRef} className="w-full h-full block pointer-events-none" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-[#f5e156] uppercase">Move cursor to swirl solar plasma vortex ☀️</div>
+                  </div>
+                )}
+
+                {/* 12: Bouncy Physics Sandbox */}
+                {activeId === 12 && (
+                  <div className="w-full h-[360px] bg-[#0a0a0a] rounded-3xl border border-white/10 overflow-hidden relative">
+                    <canvas ref={ballCanvasRef} className="w-full h-full block" />
                   </div>
                 )}
 
@@ -650,14 +848,14 @@ export default function Lab() {
               
               {activeId === 1 && (
                 <div className="flex justify-between items-center font-mono text-xs">
-                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">3D Tilt Readouts:</span>
+                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">3D Tilt Momentum:</span>
                   <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 font-bold">RX: {tiltDisplay.rx}° | RY: {tiltDisplay.ry}°</span>
                 </div>
               )}
 
               {activeId === 3 && (
                 <div className="flex justify-between items-center font-mono text-xs">
-                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">Active Particles:</span>
+                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">Active Particle Stream:</span>
                   <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 font-bold">{activeParticlesCount} Particles</span>
                 </div>
               )}
@@ -696,11 +894,14 @@ export default function Lab() {
               )}
 
               {activeId === 8 && (
-                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-                  <button onClick={() => setClayShape('orb')} className={`p-2.5 rounded-lg border ${clayShape === 'orb' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] text-white'}`}>Sphere</button>
-                  <button onClick={() => setClayShape('cube')} className={`p-2.5 rounded-lg border ${clayShape === 'cube' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] text-white'}`}>Cube</button>
-                  <button onClick={() => setClayShape('diamond')} className={`p-2.5 rounded-lg border ${clayShape === 'diamond' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] text-white'}`}>Diamond</button>
-                  <button onClick={() => setClayShape('capsule')} className={`p-2.5 rounded-lg border ${clayShape === 'capsule' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] text-white'}`}>Capsule</button>
+                <div className="space-y-3 font-mono text-xs">
+                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">Hologram Wireframe Color:</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => setHoloTheme('amber')} className={`p-2 rounded-lg border ${holoTheme === 'amber' ? 'bg-[#f5e156] text-black font-bold' : 'bg-[#181818] text-white'}`}>Cyber Amber</button>
+                    <button onClick={() => setHoloTheme('cyan')} className={`p-2 rounded-lg border ${holoTheme === 'cyan' ? 'bg-[#38bdf8] text-black font-bold' : 'bg-[#181818] text-white'}`}>Electric Cyan</button>
+                    <button onClick={() => setHoloTheme('magenta')} className={`p-2 rounded-lg border ${holoTheme === 'magenta' ? 'bg-[#a855f7] text-white font-bold' : 'bg-[#181818] text-white'}`}>Neon Magenta</button>
+                    <button onClick={() => setHoloTheme('green')} className={`p-2 rounded-lg border ${holoTheme === 'green' ? 'bg-[#10b981] text-black font-bold' : 'bg-[#181818] text-white'}`}>Acid Green</button>
+                  </div>
                 </div>
               )}
 
