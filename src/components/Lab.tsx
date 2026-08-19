@@ -131,7 +131,7 @@ export default function Lab() {
     setTiltDisplay({ rx: 0, ry: 0 });
   };
 
-  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS (EXPLICIT DIMENSIONS) ---
+  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS (FIXED SCALED COORDINATES) ---
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const [particleCount, setParticleCount] = useState(0);
 
@@ -146,7 +146,7 @@ export default function Lab() {
     const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number; color: string }> = [];
 
     // Seed ambient particles
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 35; i++) {
       particles.push({
         x: Math.random() * 600,
         y: Math.random() * 360,
@@ -159,7 +159,7 @@ export default function Lab() {
     }
 
     const addParticles = (x: number, y: number) => {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         particles.push({
           x,
           y,
@@ -174,7 +174,11 @@ export default function Lab() {
 
     const handleCanvasMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      addParticles(e.clientX - rect.left, e.clientY - rect.top);
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      const posX = (e.clientX - rect.left) * scaleX;
+      const posY = (e.clientY - rect.top) * scaleY;
+      addParticles(posX, posY);
     };
 
     canvas.addEventListener('mousemove', handleCanvasMove);
@@ -223,7 +227,7 @@ export default function Lab() {
   const [glowVal, setGlowVal] = useState(65);
   const [hueShift, setHueShift] = useState(0);
 
-  // --- EXPERIMENT 5: MATRIX RAIN (EXPLICIT DIMENSIONS) ---
+  // --- EXPERIMENT 5: MATRIX RAIN ---
   const matrixCanvasRef = useRef<HTMLCanvasElement>(null);
   const [matrixSpeed, setMatrixSpeed] = useState(33);
 
@@ -260,7 +264,7 @@ export default function Lab() {
     return () => clearInterval(interval);
   }, [activeId, matrixSpeed]);
 
-  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES (EXPLICIT DIMENSIONS) ---
+  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES (FIXED SCALED COORDINATES) ---
   const nodeCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -283,8 +287,10 @@ export default function Lab() {
 
     const handleCanvasMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      mouse.x = (e.clientX - rect.left) * scaleX;
+      mouse.y = (e.clientY - rect.top) * scaleY;
     };
 
     canvas.addEventListener('mousemove', handleCanvasMove);
@@ -334,7 +340,7 @@ export default function Lab() {
     };
   }, [activeId]);
 
-  // --- EXPERIMENT 7: WATER RIPPLE (EXPLICIT DIMENSIONS) ---
+  // --- EXPERIMENT 7: WATER RIPPLE ---
   const rippleCanvasRef = useRef<HTMLCanvasElement>(null);
   const ripplesRef = useRef<Array<{ x: number; y: number; radius: number; alpha: number }>>([]);
 
@@ -342,9 +348,11 @@ export default function Lab() {
     const canvas = rippleCanvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
+    const scaleX = 600 / (rect.width || 1);
+    const scaleY = 360 / (rect.height || 1);
     ripplesRef.current.push({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
       radius: 5,
       alpha: 1
     });
@@ -403,7 +411,7 @@ export default function Lab() {
   // --- EXPERIMENT 9: RETRO AUDIO EQUALIZER ---
   const [eqSpeed, setEqSpeed] = useState(1);
 
-  // --- EXPERIMENT 10: SOLAR PLASMA (EXPLICIT DIMENSIONS) ---
+  // --- EXPERIMENT 10: SOLAR PLASMA ---
   const plasmaCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -426,8 +434,10 @@ export default function Lab() {
 
     const handleCanvasMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      mouse.x = (e.clientX - rect.left) * scaleX;
+      mouse.y = (e.clientY - rect.top) * scaleY;
     };
 
     canvas.addEventListener('mousemove', handleCanvasMove);
