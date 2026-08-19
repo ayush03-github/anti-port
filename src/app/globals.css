@@ -104,11 +104,6 @@ html.light .bg-neutral-900 {
   background-color: #f1f5f9 !important;
 }
 
-html.light .bg-\[\#1e1e1e\] {
-  background-color: #ffffff !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
-}
-
 html.light .bg-\[\#141414\]\/70,
 html.light .bg-\[\#121212\]\/80,
 html.light .bg-white\/5 {
@@ -157,4 +152,24 @@ html.light .text-\[\#f5e156\] {
 
 html.light .border-\[\#f5e156\] {
   border-color: #d97706 !important;
+}
+
+/* --- SKILL PILLS EXPLICIT LIGHT THEME OVERRIDES --- */
+html.light .skill-pill {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .skill-pill:hover {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+html.light .morph-pill-active {
+  background-color: #0f172a !important;
+  color: #fbbf24 !important;
+  border-color: #1e293b !important;
 }
