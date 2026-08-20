@@ -201,7 +201,7 @@ export default function Footer() {
         <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-500/8 blur-[150px] rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-between min-h-[420px]">
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-between min-h-[520px]">
         
         {/* TOP SECTION: Cosmic Statement */}
         <div>
@@ -218,11 +218,9 @@ export default function Footer() {
           </h2>
         </div>
 
-        {/* MIDDLE SECTION: Social Icon Links & Telemetry */}
-        <div className="my-16 pt-12 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-8">
-          
-          {/* Social Icon Links */}
-          <div className="flex items-center gap-4">
+        {/* MIDDLE SECTION: Social Icon Links (with generous vertical spacing) */}
+        <div className="mt-20 mb-16 pt-12 border-t border-white/10 flex items-center justify-center">
+          <div className="flex items-center gap-5">
             {socialLinks.map((item) => (
               <motion.a
                 key={item.name}
@@ -238,18 +236,6 @@ export default function Footer() {
               </motion.a>
             ))}
           </div>
-
-          {/* Real-time IST Location & Orbit Clock */}
-          <div className="flex flex-col sm:items-end justify-center font-mono text-xs text-neutral-400 gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping" />
-              <span className="text-white/50">LAT 20.59° N, LONG 78.96° E // INDIA</span>
-            </div>
-            <div className="text-white font-bold text-sm">
-              ORBITAL TIME: {time || '12:00:00 PM'} IST
-            </div>
-          </div>
-
         </div>
 
         {/* BOTTOM SECTION: Copyright & Return to Top Rocket */}
@@ -258,21 +244,17 @@ export default function Footer() {
             © 2026 <span className="text-orange-500 font-bold">AYUSH KODLE</span> // MISSION CONTROL
           </div>
 
-          <div className="flex items-center gap-6">
-            <span>Powered by Next.js, Framer Motion &amp; Canvas Physics</span>
-
-            {/* Back to top rocket button */}
-            <motion.button
-              onClick={scrollToTop}
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.9 }}
-              className="px-4 py-2 rounded-full bg-black/60 border border-white/20 text-white flex items-center gap-2 hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-xl backdrop-blur-md group"
-              aria-label="Return to Top"
-            >
-              <span className="group-hover:-translate-y-1 transition-transform">🚀</span>
-              <span className="font-mono text-[10px] uppercase tracking-wider font-bold">TOP</span>
-            </motion.button>
-          </div>
+          {/* Back to top rocket button */}
+          <motion.button
+            onClick={scrollToTop}
+            whileHover={{ scale: 1.1, y: -2 }}
+            whileTap={{ scale: 0.9 }}
+            className="px-4 py-2 rounded-full bg-black/60 border border-white/20 text-white flex items-center gap-2 hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-xl backdrop-blur-md group"
+            aria-label="Return to Top"
+          >
+            <span className="group-hover:-translate-y-1 transition-transform">🚀</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">TOP</span>
+          </motion.button>
         </div>
 
       </div>
