@@ -4,6 +4,7 @@ import Projects from '@/components/Projects';
 import Skills from '@/components/Skills';
 import AvatarSection from '@/components/AvatarSection';
 import Lab from '@/components/Lab';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <AvatarSection />
       <Projects />
       <Lab />
+      <Footer />
     </main>
   );
 }
