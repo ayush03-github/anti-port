@@ -113,7 +113,7 @@ export default function Skills() {
                   {activeSkill.name}
                 </motion.div>
 
-                {/* Right Side: Frosted Glassmorphism Pastel Speech Bubble */}
+                {/* Right Side: Ultra-Sleek Glassmorphic Quote Card */}
                 <motion.div
                   initial={{ scale: 0, x: 100, rotate: 15 }}
                   animate={{ scale: 1, x: 0, rotate: -2, y: [0, -10, 0] }}
@@ -124,38 +124,18 @@ export default function Skills() {
                     rotate: { type: "spring", bounce: 0.5, duration: 0.6 },
                     y: { repeat: Infinity, duration: 3, ease: "easeInOut" }
                   }}
-                  className="relative w-full max-w-xs sm:max-w-md md:w-[450px] p-6 sm:p-8 md:p-14 rounded-[3rem] sm:rounded-[4rem] text-slate-950 border border-white/50 shadow-2xl backdrop-blur-xl"
+                  className="relative w-full max-w-xs sm:max-w-md md:w-[450px] p-6 sm:p-8 md:p-14 rounded-[3rem] sm:rounded-[3.5rem] text-slate-950 border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-2xl"
                   style={{
-                    backgroundColor: `${activeSkill.color}d9`, // 85% opacity for rich semi-transparent glass
+                    backgroundColor: `${activeSkill.color}e6`, // 90% opacity for ultra-clean pastel glass
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                   }}
                 >
-                  {/* Seamless Speech Bubble Tail for Desktop */}
-                  <div
-                    className="hidden md:block absolute -left-3.5 bottom-12 w-7 h-7 rotate-45 border-l border-b border-white/50 pointer-events-none rounded-bl-sm"
-                    style={{
-                      backgroundColor: `${activeSkill.color}d9`,
-                      backdropFilter: 'blur(24px)',
-                      WebkitBackdropFilter: 'blur(24px)',
-                    }}
-                  />
-
-                  {/* Seamless Speech Bubble Tail for Mobile */}
-                  <div
-                    className="block md:hidden absolute left-14 -top-3.5 w-7 h-7 rotate-45 border-t border-l border-white/50 pointer-events-none rounded-tl-sm"
-                    style={{
-                      backgroundColor: `${activeSkill.color}d9`,
-                      backdropFilter: 'blur(24px)',
-                      WebkitBackdropFilter: 'blur(24px)',
-                    }}
-                  />
-
                   <div className="flex flex-col items-start text-left gap-3 sm:gap-4 md:gap-6 relative z-10">
                     <motion.div
                       animate={{ rotate: [0, 15, -15, 0] }}
                       transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                      className="text-5xl sm:text-6xl md:text-7xl drop-shadow-[4px_4px_4px_rgba(0,0,0,0.2)]"
+                      className="text-5xl sm:text-6xl md:text-7xl drop-shadow-[4px_4px_4px_rgba(0,0,0,0.15)]"
                     >
                       {activeSkill.logo}
                     </motion.div>
