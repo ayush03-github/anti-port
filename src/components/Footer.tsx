@@ -29,13 +29,13 @@ const socialLinks = [
     href: 'https://leetcode.com/ayushkodle', 
     tag: '@ayushkodle',
     icon: (
-      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24">
-        {/* LeetCode Official White Angle Bracket */}
+      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none">
+        {/* LeetCode Main Angle Bracket */}
         <path d="M16.102 17.93l-8.528-8.529a1.69 1.69 0 0 1 0-2.39L15.938 1.48a1.69 1.69 0 0 1 2.39 0l.542.541a1.69 1.69 0 0 1 0 2.39L11.536 11.74l7.334 7.334a1.69 1.69 0 0 1 0 2.39l-.542.542a1.69 1.69 0 0 1-2.226-.076z" fill="currentColor" />
-        {/* LeetCode Official Orange Loop */}
-        <path d="M21.25 14.545a1.69 1.69 0 0 1-2.39 0l-5.328-5.328a1.69 1.69 0 0 1 0-2.39l.542-.542a1.69 1.69 0 0 1 2.39 0l5.328 5.328a1.69 1.69 0 0 1 0 2.39l-.542.542z" fill="#FFA116" />
-        {/* LeetCode Official Gray Bar */}
-        <path d="M9.6 12.2h7.8a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-.2a1.2 1.2 0 0 1 1.2-1.2z" fill="#B3B3B3" />
+        {/* LeetCode Orange Loop Arc */}
+        <path d="M22.25 15.545a1.69 1.69 0 0 1-2.39 0l-5.328-5.328a1.69 1.69 0 0 1 0-2.39l.542-.542a1.69 1.69 0 0 1 2.39 0l5.328 5.328a1.69 1.69 0 0 1 0 2.39l-.542.542z" fill="#FFA116" />
+        {/* LeetCode Gray Center Bar */}
+        <path d="M9.6 13.2h8.8a1.2 1.2 0 0 1 1.2 1.2v.4a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-.4a1.2 1.2 0 0 1 1.2-1.2z" fill="#9E9E9E" />
       </svg>
     )
   },
