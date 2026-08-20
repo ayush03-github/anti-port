@@ -36,7 +36,7 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
       >
         <div className="flex flex-col items-center md:items-end">
           {/* Techy HUD Glassmorphism Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 dark:bg-black/40 light:bg-white/30 border border-white/20 dark:border-white/20 light:border-slate-800/20 backdrop-blur-xl shadow-lg mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 dark:bg-black/40 light:bg-white/30 border border-white/20 dark:border-white/20 light:border-slate-800/20 backdrop-blur-md shadow-lg mb-4">
             <span className="w-2 h-2 rounded-full bg-[#f5e156] animate-ping" />
             <span className="text-[11px] font-mono tracking-[0.25em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 font-bold uppercase">
               Portfolio &apos;26 // Creative Dev
@@ -45,7 +45,7 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
 
           {/* Main Title - Ayush Kodle in the exact same premium Cinzel font */}
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[8rem] font-bold tracking-tight font-cinzel drop-shadow-[0_12px_40px_rgba(0,0,0,0.8)] leading-[0.95] transition-colors duration-300">
-            <span className="text-white dark:text-white light:text-slate-800">Ayush</span> <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">Kodle</span>
+            <span className="text-white dark:text-white light:text-white">Ayush</span> <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">Kodle</span>
           </h1>
 
           {/* Tagline */}
@@ -54,9 +54,9 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
           </p>
 
           {/* Scroll Prompt */}
-          <div className="mt-10 flex items-center gap-3 font-mono text-xs text-white/70 dark:text-white/70 light:text-slate-700 tracking-[0.25em] uppercase animate-pulse">
+          <div className="mt-10 flex items-center gap-3 font-mono text-xs text-white dark:text-white light:text-white tracking-[0.25em] uppercase animate-pulse drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
             <span>Scroll to explore</span>
-            <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-600">↓</span>
+            <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">↓</span>
           </div>
         </div>
       </motion.div>
