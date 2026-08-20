@@ -14,24 +14,6 @@ const socialLinks = [
 export default function Footer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
-  const [time, setTime] = useState('');
-
-  // Live IST Clock
-  useEffect(() => {
-    const updateTime = () => {
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: 'Asia/Kolkata',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      };
-      setTime(new Intl.DateTimeFormat('en-US', options).format(new Date()));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // --- SUBTLE LOW-DENSITY STARFIELD + RARE METEOR STREAKS ---
   useEffect(() => {
@@ -42,7 +24,7 @@ export default function Footer() {
 
     let animId: number;
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 300);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 240);
 
     const handleResize = () => {
       if (!canvas || !canvas.parentElement) return;
@@ -51,9 +33,9 @@ export default function Footer() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Generate 45 Subtle Stars
+    // Generate 35 Subtle Stars
     const stars: Array<{ x: number; y: number; radius: number; alpha: number; twinkleSpeed: number; maxAlpha: number }> = [];
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 35; i++) {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -64,7 +46,7 @@ export default function Footer() {
       });
     }
 
-    // Rare Shooting Meteors (Subtle white/faint orange streaks)
+    // Rare Shooting Meteors
     const meteors: Array<{ x: number; y: number; length: number; speed: number; dx: number; dy: number; alpha: number }> = [];
 
     const spawnMeteor = () => {
@@ -75,10 +57,10 @@ export default function Footer() {
         speed: Math.random() * 8 + 6,
         dx: 6 + Math.random() * 3,
         dy: 4 + Math.random() * 2,
-        alpha: 0.4
+        alpha: 0.35
       });
     };
-    const meteorInterval = setInterval(spawnMeteor, 6000);
+    const meteorInterval = setInterval(spawnMeteor, 7000);
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -146,28 +128,28 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-10 md:py-12 px-4 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300">
+    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-6 md:py-8 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
+      
+      {/* CANVAS BACKGROUND */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
 
-      {/* CANVAS BACKGROUND: LOW-DENSITY STARS & METEOR STREAKS */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-50 dark:opacity-50 light:opacity-20" />
-
-      {/* Subtle Ambient Radial Lighting */}
+      {/* Ambient Radial Lighting */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto flex flex-col justify-between gap-8 md:gap-10">
-
+      <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-6 md:gap-8">
+        
         {/* TOP ROW: HEADLINE & EMAIL CTA */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
+          
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Open to work or to Freelance</span>
+              <span>Available for select opportunities</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight">
+            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-cinzel leading-tight">
               Let&apos;s build something <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
             </h2>
           </div>
@@ -180,15 +162,14 @@ export default function Footer() {
             className="self-start md:self-auto px-5 py-2.5 rounded-full bg-black/80 dark:bg-black/80 light:bg-white border border-white/20 dark:border-white/20 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-lg backdrop-blur-md flex items-center gap-2.5 shrink-0 group"
           >
             <span className="w-2 h-2 rounded-full bg-orange-500 group-hover:animate-ping" />
-            <span>{copied ? '✓ Email Copied!' : 'ayushkodle01@gmail.com'}</span>
+            <span>{copied ? '✓ Email Copied!' : 'ayushkodle.dev@gmail.com'}</span>
           </motion.button>
 
         </div>
 
-        {/* MIDDLE ROW: SOCIAL LINKS & LOCAL IST TIME */}
-        <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-
-          {/* Social Links Bar */}
+        {/* MIDDLE ROW: SOCIAL LINKS BAR */}
+        <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
+          
           <div className="flex flex-wrap gap-2.5">
             {socialLinks.map((item) => (
               <motion.a
@@ -203,13 +184,6 @@ export default function Footer() {
                 <span className="text-white/30 dark:text-white/30 light:text-slate-400 text-[10px]">{item.tag}</span>
               </motion.a>
             ))}
-          </div>
-
-          {/* Local IST Clock */}
-          <div className="font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 flex items-center gap-2.5 whitespace-nowrap">
-            <span>India (IST)</span>
-            <span className="text-white/30 dark:text-white/30 light:text-slate-300">//</span>
-            <span className="text-white dark:text-white light:text-slate-900 font-bold">{time || '12:00:00 PM'}</span>
           </div>
 
         </div>
