@@ -27,7 +27,7 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
   const y4 = useTransform(activeProgress, [0.88, 1], [30, 0]);
 
   return (
-    <div className="relative w-full h-full flex flex-col justify-center max-w-7xl mx-auto px-6 md:px-12 pointer-events-none">
+    <div className="overlay-content relative w-full h-full flex flex-col justify-center max-w-7xl mx-auto px-6 md:px-12 pointer-events-none">
 
       {/* SECTION 1 - Hero Intro (Right / Center Aligned) */}
       <motion.div

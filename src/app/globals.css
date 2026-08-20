@@ -95,7 +95,7 @@ html.light ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Global Light Mode Target Overrides */
+/* Global Light Mode Target Overrides for Backgrounds */
 html.light .bg-\[\#121212\],
 html.light .bg-\[\#080808\],
 html.light .bg-\[\#181818\],
@@ -115,22 +115,27 @@ html.light .bg-\[\#121212\]\/90 {
   background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-html.light .light\:text-slate-600 {
-  color: #475569 !important;
+/* --- LIGHT MODE TEXT OVERRIDES (ALL SECTIONS EXCEPT OVERLAY) --- */
+html.light section:not(.overlay-content) h1,
+html.light section:not(.overlay-content) h2,
+html.light section:not(.overlay-content) h3,
+html.light main:not(.overlay-content) h1,
+html.light main:not(.overlay-content) h2,
+html.light main:not(.overlay-content) h3,
+html.light .text-white:not(.overlay-content *) {
+  color: #0f172a !important;
 }
 
-html.light .light\:text-slate-700 {
+html.light .text-neutral-200:not(.overlay-content *),
+html.light .text-neutral-300:not(.overlay-content *),
+html.light .text-neutral-400:not(.overlay-content *) {
   color: #334155 !important;
 }
 
-html.light .text-neutral-300,
-html.light .text-neutral-400 {
-  color: #475569 !important;
-}
-
-html.light .text-white\/50,
-html.light .text-white\/40,
-html.light .text-white\/30 {
+html.light .text-white\/70:not(.overlay-content *),
+html.light .text-white\/50:not(.overlay-content *),
+html.light .text-white\/40:not(.overlay-content *),
+html.light .text-white\/30:not(.overlay-content *) {
   color: #64748b !important;
 }
 
@@ -141,13 +146,33 @@ html.light .border-white\/30 {
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
-/* Accent Amber Yellow for Light Mode Contrast */
-html.light .text-\[\#f5e156\] {
+/* Accent Amber Yellow for Light Mode Contrast (Except Overlay) */
+html.light .text-\[\#f5e156\]:not(.overlay-content *),
+html.light .text-amber-500:not(.overlay-content *),
+html.light .text-amber-600:not(.overlay-content *) {
   color: #d97706 !important;
 }
 
 html.light .border-\[\#f5e156\] {
   border-color: #d97706 !important;
+}
+
+/* --- OVERLAY EXPLICIT IMMUNITY RULES --- */
+.overlay-content,
+.overlay-content * {
+  color: inherit;
+}
+
+.overlay-content h1 .text-white,
+.overlay-content h2.text-white,
+.overlay-content p.text-neutral-200,
+.overlay-content span.text-white {
+  color: #ffffff !important;
+}
+
+.overlay-content .text-orange-500,
+.overlay-content .text-orange-400 {
+  color: #f97316 !important;
 }
 
 /* --- SKILL PILLS EXPLICIT LIGHT THEME OVERRIDES --- */
