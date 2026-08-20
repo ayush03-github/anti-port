@@ -66,7 +66,10 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
         style={{ opacity: opacity2, y: y2 }}
         className="absolute inset-0 flex flex-col items-start justify-center text-left px-6"
       >
-        <div className="relative max-w-2xl bg-[#141414]/80 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl">
+        <div 
+          className="relative max-w-2xl backdrop-blur-md p-8 md:p-12 rounded-[2.5rem] border border-white/15 shadow-2xl"
+          style={{ backgroundColor: 'rgba(20, 20, 20, 0.25)' }}
+        >
           {/* Accent Glow Blob */}
           <div className="absolute -top-10 -left-10 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -94,7 +97,10 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
         style={{ opacity: opacity3, y: y3 }}
         className="absolute inset-0 flex flex-col items-end justify-center text-right px-6"
       >
-        <div className="relative max-w-2xl bg-[#141414]/80 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl">
+        <div 
+          className="relative max-w-2xl backdrop-blur-md p-8 md:p-12 rounded-[2.5rem] border border-white/15 shadow-2xl"
+          style={{ backgroundColor: 'rgba(20, 20, 20, 0.25)' }}
+        >
           {/* Accent Glow Blob */}
           <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full pointer-events-none" />
 
