@@ -1,9 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-
-const TARGET_EMAIL = 'ayushkodle01@gmail.com';
+import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 const socialLinks = [
   { 
@@ -53,11 +52,11 @@ const socialLinks = [
     href: 'https://cssbattle.dev/player/pixelette', 
     tag: 'pixelette',
     icon: (
-      <svg className="w-4.5 h-4.5 text-amber-400 group-hover:text-amber-300" viewBox="0 0 24 24">
-        <path d="M5 4c-1.1 0-2 .9-2 2v3c0 1.1-.9 2-2 2 .9 0 2 .9 2 2v3c0 1.1.9 2 2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
-        <path d="M19 4c1.1 0 2 .9 2 2v3c0 1.1.9 2 2 2-.9 0-2 .9-2 2v3c0 1.1-.9 2-2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
-        <path d="M8 16l8-8M16 16L8 8" stroke="#F5E156" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M7.5 13.5l2.5 2.5M16.5 13.5l-2.5 2.5M7.5 10.5l2.5-2.5M16.5 10.5l-2.5-2.5" stroke="#F5E156" strokeWidth="1.8" strokeLinecap="round" />
+      <svg className="w-4.5 h-4.5 text-amber-500 dark:text-amber-400 group-hover:text-amber-300" viewBox="0 0 24 24">
+        <path d="M5 4c-1.1 0-2 .9-2 2v3c0 1.1-.9 2-2 2 .9 0 2 .9 2 2v3c0 1.1.9 2 2 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M19 4c1.1 0 2 .9 2 2v3c0 1.1.9 2 2 2-.9 0-2 .9-2 2v3c0 1.1-.9 2-2 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M8 16l8-8M16 16L8 8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M7.5 13.5l2.5 2.5M16.5 13.5l-2.5 2.5M7.5 10.5l2.5-2.5M16.5 10.5l-2.5-2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     )
   }
@@ -65,17 +64,8 @@ const socialLinks = [
 
 export default function Footer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  // Form states
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [sentSuccess, setSentSuccess] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // --- SUBTLE LOW-DENSITY STARFIELD + RARE METEOR STREAKS ---
   useEffect(() => {
@@ -86,7 +76,7 @@ export default function Footer() {
 
     let animId: number;
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 320);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 280);
 
     const handleResize = () => {
       if (!canvas || !canvas.parentElement) return;
@@ -133,7 +123,7 @@ export default function Footer() {
 
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.05, star.alpha)})`;
+        ctx.fillStyle = isDark ? `rgba(255, 255, 255, ${Math.max(0.05, star.alpha)})` : `rgba(15, 23, 42, ${Math.max(0.05, star.alpha * 0.6)})`;
         ctx.fill();
       });
 
@@ -152,8 +142,9 @@ export default function Footer() {
         const tailY = m.y - (m.dy / m.speed) * m.length;
 
         const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
-        grad.addColorStop(0, `rgba(249, 115, 22, ${m.alpha})`);
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        const streakColor = isDark ? '249, 115, 22' : '217, 119, 6';
+        grad.addColorStop(0, `rgba(${streakColor}, ${m.alpha})`);
+        grad.addColorStop(1, isDark ? 'rgba(255, 255, 255, 0)' : 'rgba(15, 23, 42, 0)');
 
         ctx.beginPath();
         ctx.moveTo(m.x, m.y);
@@ -173,244 +164,87 @@ export default function Footer() {
       clearInterval(meteorInterval);
       cancelAnimationFrame(animId);
     };
-  }, []);
-
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(TARGET_EMAIL);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const mailtoSubject = encodeURIComponent(formData.subject || `Portfolio Message from ${formData.name || 'Visitor'}`);
-    const mailtoBody = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-    
-    // Trigger native mail app
-    window.location.href = `mailto:${TARGET_EMAIL}?subject=${mailtoSubject}&body=${mailtoBody}`;
-    
-    setSentSuccess(true);
-    setTimeout(() => {
-      setSentSuccess(false);
-      setIsModalOpen(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 2000);
-  };
+  }, [isDark]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <>
-      <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-12 md:py-16 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
+    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-12 md:py-16 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
+      
+      {/* CANVAS BACKGROUND */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
+
+      {/* Ambient Radial Lighting */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-10 md:gap-12">
         
-        {/* CANVAS BACKGROUND */}
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
-
-        {/* Ambient Radial Lighting */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
-        </div>
-
-        <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-10 md:gap-12">
+        {/* TOP ROW: HEADLINE & STATUS BEACON */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
           
-          {/* TOP ROW: HEADLINE & EMAIL FORM TRIGGER CAPSULE */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
-            
-            <div className="space-y-2 my-10 md:my-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Available for select opportunities</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight">
-                Let&apos;s build something <br /><span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
-              </h2>
+          <div className="space-y-2 my-10 md:my-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Available for select opportunities</span>
             </div>
 
-            {/* Open Email Form Modal Capsule Button */}
-            <motion.button
-              onClick={() => setIsModalOpen(true)}
-              whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(249,115,22,0.4)" }}
-              whileTap={{ scale: 0.96 }}
-              className="self-start md:self-auto px-6 py-3.5 rounded-full bg-orange-500 dark:bg-orange-500 light:bg-amber-500 text-black font-syne font-bold text-xs uppercase tracking-widest hover:bg-orange-400 transition-all cursor-pointer shadow-xl flex items-center gap-3 shrink-0 group"
-            >
-              <span className="w-2.5 h-2.5 rounded-full bg-black animate-ping" />
-              <span>✉️ SEND MESSAGE // {TARGET_EMAIL}</span>
-            </motion.button>
-
-          </div>
-
-          {/* MIDDLE ROW: OFFICIAL SOCIAL SVG ICON BUTTONS */}
-          <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
-            
-            {/* Minimalist Social Icon Buttons */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((item) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ y: -3, scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group flex items-center justify-center"
-                  aria-label={item.name}
-                >
-                  {item.icon}
-
-                  <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-white text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
-                    {item.name}
-                  </span>
-                </motion.a>
-              ))}
-            </div>
-
-          </div>
-
-          {/* BOTTOM ROW: MINIMALIST COPYRIGHT & BACK TO TOP */}
-          <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-white/40 dark:text-white/40 light:text-slate-500">
-            <div>
-              © 2026 <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 font-semibold">AYUSH KODLE</span>. ALL RIGHTS RESERVED.
-            </div>
-
-            <motion.button
-              onClick={scrollToTop}
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-1.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-white border border-white/15 dark:border-white/15 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-[11px] uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-sm flex items-center gap-2"
-            >
-              <span>Back to Top</span>
-              <span>↑</span>
-            </motion.button>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight text-white dark:text-white light:text-slate-900">
+              Let&apos;s build something <br /><span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
+            </h2>
           </div>
 
         </div>
-      </footer>
 
-      {/* CONTACT FORM MODAL */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6">
-            
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
-            />
+        {/* MIDDLE ROW: OFFICIAL SOCIAL SVG ICON BUTTONS */}
+        <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
+          
+          {/* Minimalist Social Icon Buttons */}
+          <div className="flex items-center gap-3">
+            {socialLinks.map((item) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ y: -3, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 dark:hover:text-orange-400 light:hover:text-amber-600 hover:border-orange-500/50 dark:hover:border-orange-500/50 light:hover:border-amber-500/50 transition-all shadow-md group flex items-center justify-center"
+                aria-label={item.name}
+              >
+                {item.icon}
 
-            {/* Modal Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-lg bg-[#141414] dark:bg-[#141414] light:bg-white backdrop-blur-2xl p-6 sm:p-8 rounded-[2rem] border border-white/15 dark:border-white/15 light:border-slate-300 shadow-2xl z-10 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 dark:border-white/10 light:border-slate-200">
-                <div>
-                  <div className="font-mono text-[10px] text-orange-500 font-bold uppercase tracking-widest">
-                    Direct Contact // {TARGET_EMAIL}
-                  </div>
-                  <h3 className="text-2xl font-bold font-cinzel text-white dark:text-white light:text-slate-900 mt-1">
-                    Send a Message
-                  </h3>
-                </div>
-
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="w-9 h-9 rounded-full bg-white/5 dark:bg-white/5 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 hover:bg-orange-500 hover:text-black transition-all flex items-center justify-center cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Form */}
-              <form onSubmit={handleFormSubmit} className="space-y-4">
-                <div>
-                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Jane Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
-                    Your Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="jane@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
-                    Subject / Project Topic
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Full-Stack Web App Inquiry"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
-                    Message
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Tell me about your project or opportunity..."
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors resize-none"
-                  />
-                </div>
-
-                {/* Actions */}
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCopyEmail}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/5 dark:bg-white/5 light:bg-slate-200 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-wider hover:bg-white/10 transition-colors cursor-pointer"
-                  >
-                    {copied ? '✓ Copied Address!' : 'Copy Email Address'}
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-orange-500 text-black font-syne font-bold text-xs uppercase tracking-widest hover:bg-orange-400 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <span>{sentSuccess ? '🚀 Opening Mail App...' : 'Send Message ✉️'}</span>
-                  </button>
-                </div>
-              </form>
-
-            </motion.div>
+                {/* Minimalist Tooltip on Hover */}
+                <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 dark:bg-black/90 light:bg-slate-900 text-white text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
+                  {item.name}
+                </span>
+              </motion.a>
+            ))}
           </div>
-        )}
-      </AnimatePresence>
-    </>
+
+        </div>
+
+        {/* BOTTOM ROW: MINIMALIST COPYRIGHT & BACK TO TOP */}
+        <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-white/40 dark:text-white/40 light:text-slate-500">
+          <div>
+            © 2026 <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 font-semibold">AYUSH KODLE</span>. ALL RIGHTS RESERVED.
+          </div>
+
+          <motion.button
+            onClick={scrollToTop}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-4 py-1.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-white border border-white/15 dark:border-white/15 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-[11px] uppercase tracking-widest hover:border-orange-500 dark:hover:border-orange-500 light:hover:border-amber-500 hover:text-orange-400 dark:hover:text-orange-400 light:hover:text-amber-600 transition-all cursor-pointer shadow-sm flex items-center gap-2"
+          >
+            <span>Back to Top</span>
+            <span>↑</span>
+          </motion.button>
+        </div>
+
+      </div>
+    </footer>
   );
 }
