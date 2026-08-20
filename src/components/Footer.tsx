@@ -29,8 +29,13 @@ const socialLinks = [
     href: 'https://leetcode.com/ayushkodle', 
     tag: '@ayushkodle',
     icon: (
-      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-        <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226a1.374 1.374 0 0 0-.012 1.939l4.57 4.673a1.374 1.374 0 0 0 1.96 0l5.406-5.52a1.374 1.374 0 0 0 .012-1.939l-4.57-4.673A1.374 1.374 0 0 0 13.483 0zm-7.61 9.873a1.374 1.374 0 0 0-1.96 0l-3.48 3.553a1.374 1.374 0 0 0 0 1.939l10.02 10.24a1.374 1.374 0 0 0 1.96 0l3.48-3.552a1.374 1.374 0 0 0 0-1.94L7.834 9.873z" />
+      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24">
+        {/* LeetCode Official White Angle Bracket */}
+        <path d="M16.102 17.93l-8.528-8.529a1.69 1.69 0 0 1 0-2.39L15.938 1.48a1.69 1.69 0 0 1 2.39 0l.542.541a1.69 1.69 0 0 1 0 2.39L11.536 11.74l7.334 7.334a1.69 1.69 0 0 1 0 2.39l-.542.542a1.69 1.69 0 0 1-2.226-.076z" fill="currentColor" />
+        {/* LeetCode Official Orange Loop */}
+        <path d="M21.25 14.545a1.69 1.69 0 0 1-2.39 0l-5.328-5.328a1.69 1.69 0 0 1 0-2.39l.542-.542a1.69 1.69 0 0 1 2.39 0l5.328 5.328a1.69 1.69 0 0 1 0 2.39l-.542.542z" fill="#FFA116" />
+        {/* LeetCode Official Gray Bar */}
+        <path d="M9.6 12.2h7.8a1.2 1.2 0 0 1 1.2 1.2v.2a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-.2a1.2 1.2 0 0 1 1.2-1.2z" fill="#B3B3B3" />
       </svg>
     )
   },
@@ -49,8 +54,12 @@ const socialLinks = [
     href: 'https://cssbattle.dev/player/pixelette', 
     tag: 'pixelette',
     icon: (
-      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <svg className="w-4.5 h-4.5 text-amber-400 group-hover:text-amber-300" viewBox="0 0 24 24">
+        {/* CSSBattle Official Yellow Crossed Swords in Curly Braces */}
+        <path d="M5 4c-1.1 0-2 .9-2 2v3c0 1.1-.9 2-2 2 .9 0 2 .9 2 2v3c0 1.1.9 2 2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
+        <path d="M19 4c1.1 0 2 .9 2 2v3c0 1.1.9 2 2 2-.9 0-2 .9-2 2v3c0 1.1-.9 2-2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
+        <path d="M8 16l8-8M16 16L8 8" stroke="#F5E156" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M7.5 13.5l2.5 2.5M16.5 13.5l-2.5 2.5M7.5 10.5l2.5-2.5M16.5 10.5l-2.5-2.5" stroke="#F5E156" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     )
   }
@@ -212,7 +221,7 @@ export default function Footer() {
 
         </div>
 
-        {/* MIDDLE ROW: SLEEK SOCIAL ICON BUTTONS */}
+        {/* MIDDLE ROW: OFFICIAL SOCIAL SVG ICON BUTTONS */}
         <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
           
           {/* Minimalist Social Icon Buttons */}
@@ -225,7 +234,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 whileHover={{ y: -3, scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group"
+                className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group flex items-center justify-center"
                 aria-label={item.name}
               >
                 {item.icon}
