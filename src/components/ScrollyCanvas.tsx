@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useScroll, useMotionValueEvent, motion } from 'framer-motion';
 
-const FRAME_COUNT = 101; // Updated to match actual 101 image files (000 to 100)
+const FRAME_COUNT = 101;
 
 export default function ScrollyCanvas({ children }: { children?: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -16,32 +16,71 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
   });
   
   const [images, setImages] = useState<HTMLImageElement[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isFirstFrameLoaded, setIsFirstFrameLoaded] = useState(false);
 
   // Auto-scroll variables and logic
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const scrollRef = useRef<number>(undefined);
 
-  const toggleAutoScroll = () => {
-    if (isAutoScrolling) {
-      setIsAutoScrolling(false);
-      if (scrollRef.current) cancelAnimationFrame(scrollRef.current);
-    } else {
-      setIsAutoScrolling(true);
-      const scrollStep = () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) {
-          setIsAutoScrolling(false);
-          return;
-        }
-        const canvasHeight = containerRef.current?.offsetHeight || (window.innerHeight * 5);
-        const scrollSpeed = window.scrollY < canvasHeight ? 20 : 3.75;
-        
-        window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
-        scrollRef.current = requestAnimationFrame(scrollStep);
-      };
+  const stopAutoScroll = useCallback(() => {
+    setIsAutoScrolling(false);
+    if (scrollRef.current) {
+      cancelAnimationFrame(scrollRef.current);
+      scrollRef.current = undefined;
+    }
+  }, []);
+
+  const startAutoScroll = useCallback(() => {
+    setIsAutoScrolling(true);
+    const scrollStep = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) {
+        stopAutoScroll();
+        return;
+      }
+      const canvasHeight = containerRef.current?.offsetHeight || (window.innerHeight * 5);
+      const scrollSpeed = window.scrollY < canvasHeight ? 18 : 3.5;
+      
+      window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
       scrollRef.current = requestAnimationFrame(scrollStep);
+    };
+    scrollRef.current = requestAnimationFrame(scrollStep);
+  }, [stopAutoScroll]);
+
+  const toggleAutoScroll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isAutoScrolling) {
+      stopAutoScroll();
+    } else {
+      startAutoScroll();
     }
   };
+
+  // Instant User Interrupt Listeners (Stops Auto Play immediately on user scroll, click, key press, or touch)
+  useEffect(() => {
+    if (!isAutoScrolling) return;
+
+    const handleUserInterrupt = (e: Event) => {
+      // Prevent button click itself from double-triggering interrupt
+      if ((e as MouseEvent).target && ((e as MouseEvent).target as HTMLElement).closest('.auto-play-btn')) {
+        return;
+      }
+      stopAutoScroll();
+    };
+
+    window.addEventListener('wheel', handleUserInterrupt, { passive: true });
+    window.addEventListener('touchstart', handleUserInterrupt, { passive: true });
+    window.addEventListener('touchmove', handleUserInterrupt, { passive: true });
+    window.addEventListener('keydown', handleUserInterrupt, { passive: true });
+    window.addEventListener('mousedown', handleUserInterrupt, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleUserInterrupt);
+      window.removeEventListener('touchstart', handleUserInterrupt);
+      window.removeEventListener('touchmove', handleUserInterrupt);
+      window.removeEventListener('keydown', handleUserInterrupt);
+      window.removeEventListener('mousedown', handleUserInterrupt);
+    };
+  }, [isAutoScrolling, stopAutoScroll]);
 
   useEffect(() => {
     return () => {
@@ -49,51 +88,55 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     };
   }, []);
 
-  // Preload images
+  // 1. INSTANT FIRST FRAME PRELOADER
   useEffect(() => {
-    const loadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
+    const loadedImagesArr: HTMLImageElement[] = new Array(FRAME_COUNT);
 
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      const frameNum = i.toString().padStart(3, '0');
-      img.src = `/ezgif-split/frame_${frameNum}_delay-0.071s.png`;
-      
-      const onFinished = () => {
-        loadedCount++;
-        if (loadedCount === FRAME_COUNT) {
-          setImages(loadedImages);
-          setIsLoaded(true);
-        }
+    const firstImg = new Image();
+    firstImg.src = `/ezgif-split/frame_000_delay-0.071s.png`;
+    firstImg.onload = () => {
+      loadedImagesArr[0] = firstImg;
+      setImages([...loadedImagesArr]);
+      setIsFirstFrameLoaded(true);
+      drawFrame(firstImg);
+
+      let idx = 1;
+      const loadNextChunk = () => {
+        if (idx >= FRAME_COUNT) return;
+        const img = new Image();
+        const frameNum = idx.toString().padStart(3, '0');
+        img.src = `/ezgif-split/frame_${frameNum}_delay-0.071s.png`;
+        img.onload = img.onerror = () => {
+          loadedImagesArr[idx] = img;
+          setImages([...loadedImagesArr]);
+          idx++;
+          if (idx < FRAME_COUNT) {
+            if ('requestIdleCallback' in window) {
+              (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(loadNextChunk);
+            } else {
+              setTimeout(loadNextChunk, 10);
+            }
+          }
+        };
       };
-
-      img.onload = onFinished;
-      img.onerror = onFinished; // Fallback so missing frames won't lock up preloader
-      loadedImages.push(img);
-    }
+      loadNextChunk();
+    };
   }, []);
 
-  // Initial draw once loaded
-  useEffect(() => {
-    if (isLoaded && images.length > 0) {
-      drawFrame(images, 0);
-    }
-  }, [isLoaded, images]);
-
-  const drawFrame = (imgs: HTMLImageElement[], index: number) => {
-    if (!canvasRef.current || !imgs[index]) return;
+  const drawFrame = (img: HTMLImageElement) => {
+    if (!canvasRef.current || !img) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    if (canvas.width !== imgs[0].width && imgs[0].width > 0) {
-      canvas.width = imgs[0].width;
-      canvas.height = imgs[0].height;
+    if (canvas.width !== img.width && img.width > 0) {
+      canvas.width = img.width;
+      canvas.height = img.height;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     try {
-      ctx.drawImage(imgs[index], 0, 0);
+      ctx.drawImage(img, 0, 0);
     } catch (e) {
       console.error('Frame render error:', e);
     }
@@ -101,32 +144,32 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (images.length > 0) {
-      const maxIndex = images.length - 1;
-      const frameIndex = Math.min(maxIndex, Math.max(0, Math.floor(latest * images.length)));
-      drawFrame(images, frameIndex);
+      const maxIndex = FRAME_COUNT - 1;
+      const targetIndex = Math.min(maxIndex, Math.max(0, Math.floor(latest * FRAME_COUNT)));
+      
+      let bestImg = images[targetIndex];
+      if (!bestImg) {
+        for (let i = targetIndex; i >= 0; i--) {
+          if (images[i]) { bestImg = images[i]; break; }
+        }
+      }
+      if (bestImg) drawFrame(bestImg);
     }
   });
 
   return (
     <div ref={containerRef} className="relative w-full h-[500vh]">
-      {/* Sticky container that holds the canvas and stays in view */}
+      {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
         
-        {/* Loading State */}
-        {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
-            <div className="text-white/50 dark:text-white/50 light:text-slate-500 animate-pulse text-sm tracking-widest font-mono">LOADING ASSETS...</div>
-          </div>
-        )}
-
         {/* Canvas Layer */}
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-cover transition-opacity duration-700 ease-in-out"
-          style={{ opacity: isLoaded ? 1 : 0 }}
+          className="w-full h-full object-cover transition-opacity duration-500 ease-in-out"
+          style={{ opacity: isFirstFrameLoaded ? 1 : 0 }}
         />
         
-        {/* Overlay Over Canvas - Passes container scrollYProgress to children */}
+        {/* Overlay Over Canvas */}
         {children && (
           <div className="absolute inset-0 w-full h-full pointer-events-none">
             {React.Children.map(children, (child) =>
@@ -137,26 +180,27 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
           </div>
         )}
 
-        {/* Auto Scroll Button */}
-        {isLoaded && (
+        {/* Auto Play Button (Placed in Bottom Left Corner) */}
+        {isFirstFrameLoaded && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-[100]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-6 left-6 z-[200]"
           >
             <button 
               onClick={toggleAutoScroll}
-              className="px-6 py-3 bg-black/40 backdrop-blur-md border border-white/10 text-white rounded-full font-mono text-xs uppercase tracking-widest hover:bg-black/60 hover:border-[#f5e156] hover:text-[#f5e156] transition-all flex items-center gap-3 shadow-lg cursor-pointer"
+              className="auto-play-btn px-5 py-2.5 bg-black/70 backdrop-blur-xl border border-white/20 text-white rounded-full font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all flex items-center gap-2.5 shadow-2xl cursor-pointer group"
+              aria-label="Toggle Auto Play"
             >
               {isAutoScrolling ? (
                 <>
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-                  Stop Playback
+                  <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping shadow-[0_0_10px_rgba(239,68,68,0.9)]" />
+                  <span className="font-bold text-red-400">Stop Auto Scroll</span>
                 </>
               ) : (
                 <>
-                  <span className="w-2 h-2 bg-[#f5e156] rounded-full shadow-[0_0_8px_rgba(245,225,86,0.6)]" />
-                  Auto Play
+                  <span className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.9)] animate-pulse" />
+                  <span>Auto Play</span>
                 </>
               )}
             </button>
