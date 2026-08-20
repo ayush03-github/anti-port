@@ -17,6 +17,7 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
   
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const [isFirstFrameLoaded, setIsFirstFrameLoaded] = useState(false);
+  const [isInScrollySection, setIsInScrollySection] = useState(true);
 
   // Auto-scroll variables and logic
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
@@ -55,12 +56,11 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     }
   };
 
-  // Instant User Interrupt Listeners (Stops Auto Play immediately on user scroll, click, key press, or touch)
+  // Instant User Interrupt Listeners
   useEffect(() => {
     if (!isAutoScrolling) return;
 
     const handleUserInterrupt = (e: Event) => {
-      // Prevent button click itself from double-triggering interrupt
       if ((e as MouseEvent).target && ((e as MouseEvent).target as HTMLElement).closest('.auto-play-btn')) {
         return;
       }
@@ -143,6 +143,14 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
   };
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    // Only show Auto Play button when inside the ScrollyCanvas section (progress < 0.99)
+    const inSection = latest < 0.99;
+    setIsInScrollySection(inSection);
+
+    if (!inSection && isAutoScrolling) {
+      stopAutoScroll();
+    }
+
     if (images.length > 0) {
       const maxIndex = FRAME_COUNT - 1;
       const targetIndex = Math.min(maxIndex, Math.max(0, Math.floor(latest * FRAME_COUNT)));
@@ -157,12 +165,14 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     }
   });
 
+  const isButtonVisible = isFirstFrameLoaded && isInScrollySection && !isAutoScrolling;
+
   return (
     <div ref={containerRef} className="relative w-full h-[500vh]">
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
         
-        {/* Canvas Layer - Zoomed in 10% (scale-110) to fill side screens edge-to-edge */}
+        {/* Canvas Layer - Zoomed in 10% (scale-110) */}
         <canvas
           ref={canvasRef}
           className="w-full h-full object-cover scale-110 transition-opacity duration-500 ease-in-out"
@@ -180,28 +190,26 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
           </div>
         )}
 
-        {/* Auto Play Button (Fades out when active, fades back in on user scroll/click) */}
-        {isFirstFrameLoaded && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ 
-              opacity: isAutoScrolling ? 0 : 1, 
-              y: isAutoScrolling ? 20 : 0,
-              pointerEvents: isAutoScrolling ? 'none' : 'auto'
-            }}
-            transition={{ duration: 0.35, ease: 'easeInOut' }}
-            className="fixed bottom-6 left-6 z-[200]"
+        {/* Auto Play Button (Only visible inside the ScrollyCanvas section) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: isButtonVisible ? 1 : 0, 
+            y: isButtonVisible ? 0 : 20,
+            pointerEvents: isButtonVisible ? 'auto' : 'none'
+          }}
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
+          className="fixed bottom-6 left-6 z-[200]"
+        >
+          <button 
+            onClick={toggleAutoScroll}
+            className="auto-play-btn px-5 py-2.5 bg-black/70 backdrop-blur-xl border border-white/20 text-white rounded-full font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all flex items-center gap-2.5 shadow-2xl cursor-pointer group"
+            aria-label="Toggle Auto Play"
           >
-            <button 
-              onClick={toggleAutoScroll}
-              className="auto-play-btn px-5 py-2.5 bg-black/70 backdrop-blur-xl border border-white/20 text-white rounded-full font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all flex items-center gap-2.5 shadow-2xl cursor-pointer group"
-              aria-label="Toggle Auto Play"
-            >
-              <span className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.9)] animate-pulse" />
-              <span>Auto Play</span>
-            </button>
-          </motion.div>
-        )}
+            <span className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.9)] animate-pulse" />
+            <span>Auto Play</span>
+          </button>
+        </motion.div>
       </div>
     </div>
   );
