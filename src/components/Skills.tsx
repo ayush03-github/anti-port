@@ -113,7 +113,7 @@ export default function Skills() {
                   {activeSkill.name}
                 </motion.div>
 
-                {/* Right Side: Goofy Pastel Claymation Bubble */}
+                {/* Right Side: Frosted Glassmorphism Pastel Claymation Bubble */}
                 <motion.div
                   initial={{ scale: 0, x: 100, rotate: 15 }}
                   animate={{ scale: 1, x: 0, rotate: -2, y: [0, -10, 0] }}
@@ -124,12 +124,16 @@ export default function Skills() {
                     rotate: { type: "spring", bounce: 0.5, duration: 0.6 },
                     y: { repeat: Infinity, duration: 3, ease: "easeInOut" }
                   }}
-                  className="relative w-full max-w-xs sm:max-w-md md:w-[450px] p-6 sm:p-8 md:p-14 rounded-[3rem] sm:rounded-[4rem] rounded-tl-sm sm:rounded-tl-sm md:rounded-tl-[4rem] md:rounded-bl-sm text-slate-950 border border-white/40 shadow-2xl"
-                  style={{ backgroundColor: activeSkill.color }}
+                  className="relative w-full max-w-xs sm:max-w-md md:w-[450px] p-6 sm:p-8 md:p-14 rounded-[3rem] sm:rounded-[4rem] rounded-tl-sm sm:rounded-tl-sm md:rounded-tl-[4rem] md:rounded-bl-sm text-slate-950 border border-white/50 shadow-2xl backdrop-blur-xl"
+                  style={{
+                    backgroundColor: `${activeSkill.color}cc`, // 80% opacity for semi-transparent glass
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                  }}
                 >
                   {/* Speech Bubble Tail for Desktop */}
                   <div
-                    className="hidden md:block absolute -left-6 bottom-16 w-16 h-16 opacity-90"
+                    className="hidden md:block absolute -left-6 bottom-16 w-16 h-16 opacity-80"
                     style={{
                       backgroundColor: activeSkill.color,
                       clipPath: "polygon(100% 0, 0 100%, 100% 100%)",
@@ -139,7 +143,7 @@ export default function Skills() {
 
                   {/* Speech Bubble Tail for Mobile */}
                   <div
-                    className="block md:hidden absolute left-16 -top-6 w-12 h-12"
+                    className="block md:hidden absolute left-16 -top-6 w-12 h-12 opacity-80"
                     style={{
                       backgroundColor: activeSkill.color,
                       clipPath: "polygon(100% 100%, 0 100%, 0 0)",
