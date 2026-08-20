@@ -66,7 +66,7 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
         style={{ opacity: opacity2, y: y2 }}
         className="absolute inset-0 flex flex-col items-start justify-center text-left px-6"
       >
-        <div className="relative max-w-2xl bg-black/40 dark:bg-black/40 light:bg-white/30 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/20 dark:border-white/20 light:border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300">
+        <div className="relative max-w-2xl bg-black/40 dark:bg-black/40 light:bg-white/30 backdrop-blur-[6px] p-8 md:p-12 rounded-[2.5rem] border border-white/20 dark:border-white/20 light:border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300">
           {/* Accent Glow Blob */}
           <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#f5e156]/20 blur-3xl rounded-full pointer-events-none" />
 
@@ -94,7 +94,7 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
         style={{ opacity: opacity3, y: y3 }}
         className="absolute inset-0 flex flex-col items-end justify-center text-right px-6"
       >
-        <div className="relative max-w-2xl bg-black/40 dark:bg-black/40 light:bg-white/30 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white/20 dark:border-white/20 light:border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300">
+        <div className="relative max-w-2xl bg-black/40 dark:bg-black/40 light:bg-white/30 backdrop-blur-[6px] p-8 md:p-12 rounded-[2.5rem] border border-white/20 dark:border-white/20 light:border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300">
           {/* Accent Glow Blob */}
           <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#f5e156]/20 blur-3xl rounded-full pointer-events-none" />
 
