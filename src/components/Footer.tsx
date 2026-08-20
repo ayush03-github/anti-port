@@ -1,7 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+
+const TARGET_EMAIL = 'ayushkodle01@gmail.com';
 
 const socialLinks = [
   { 
@@ -30,11 +32,8 @@ const socialLinks = [
     tag: '@ayushkodle',
     icon: (
       <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none">
-        {/* LeetCode Main Angle Bracket */}
         <path d="M16.102 17.93l-8.528-8.529a1.69 1.69 0 0 1 0-2.39L15.938 1.48a1.69 1.69 0 0 1 2.39 0l.542.541a1.69 1.69 0 0 1 0 2.39L11.536 11.74l7.334 7.334a1.69 1.69 0 0 1 0 2.39l-.542.542a1.69 1.69 0 0 1-2.226-.076z" fill="currentColor" />
-        {/* LeetCode Orange Loop Arc */}
         <path d="M22.25 15.545a1.69 1.69 0 0 1-2.39 0l-5.328-5.328a1.69 1.69 0 0 1 0-2.39l.542-.542a1.69 1.69 0 0 1 2.39 0l5.328 5.328a1.69 1.69 0 0 1 0 2.39l-.542.542z" fill="#FFA116" />
-        {/* LeetCode Gray Center Bar */}
         <path d="M9.6 13.2h8.8a1.2 1.2 0 0 1 1.2 1.2v.4a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-.4a1.2 1.2 0 0 1 1.2-1.2z" fill="#9E9E9E" />
       </svg>
     )
@@ -55,7 +54,6 @@ const socialLinks = [
     tag: 'pixelette',
     icon: (
       <svg className="w-4.5 h-4.5 text-amber-400 group-hover:text-amber-300" viewBox="0 0 24 24">
-        {/* CSSBattle Official Yellow Crossed Swords in Curly Braces */}
         <path d="M5 4c-1.1 0-2 .9-2 2v3c0 1.1-.9 2-2 2 .9 0 2 .9 2 2v3c0 1.1.9 2 2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
         <path d="M19 4c1.1 0 2 .9 2 2v3c0 1.1.9 2 2 2-.9 0-2 .9-2 2v3c0 1.1-.9 2-2 2" fill="none" stroke="#F5E156" strokeWidth="2" strokeLinecap="round" />
         <path d="M8 16l8-8M16 16L8 8" stroke="#F5E156" strokeWidth="2.2" strokeLinecap="round" />
@@ -67,7 +65,17 @@ const socialLinks = [
 
 export default function Footer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [sentSuccess, setSentSuccess] = useState(false);
 
   // --- SUBTLE LOW-DENSITY STARFIELD + RARE METEOR STREAKS ---
   useEffect(() => {
@@ -87,7 +95,6 @@ export default function Footer() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Generate 40 Subtle Stars
     const stars: Array<{ x: number; y: number; radius: number; alpha: number; twinkleSpeed: number; maxAlpha: number }> = [];
     for (let i = 0; i < 40; i++) {
       stars.push({
@@ -100,7 +107,6 @@ export default function Footer() {
       });
     }
 
-    // Rare Shooting Meteors
     const meteors: Array<{ x: number; y: number; length: number; speed: number; dx: number; dy: number; alpha: number }> = [];
 
     const spawnMeteor = () => {
@@ -119,7 +125,6 @@ export default function Footer() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw Twinkling Stars
       stars.forEach((star) => {
         star.alpha += star.twinkleSpeed;
         if (star.alpha >= star.maxAlpha || star.alpha <= 0.05) {
@@ -132,7 +137,6 @@ export default function Footer() {
         ctx.fill();
       });
 
-      // Draw Rare Meteor Streaks
       for (let i = meteors.length - 1; i >= 0; i--) {
         const m = meteors[i];
         m.x += m.dx;
@@ -172,9 +176,25 @@ export default function Footer() {
   }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('ayushkodle1@gmail.com');
+    navigator.clipboard.writeText(TARGET_EMAIL);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const mailtoSubject = encodeURIComponent(formData.subject || `Portfolio Message from ${formData.name || 'Visitor'}`);
+    const mailtoBody = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+    
+    // Trigger native mail app
+    window.location.href = `mailto:${TARGET_EMAIL}?subject=${mailtoSubject}&body=${mailtoBody}`;
+    
+    setSentSuccess(true);
+    setTimeout(() => {
+      setSentSuccess(false);
+      setIsModalOpen(false);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    }, 2000);
   };
 
   const scrollToTop = () => {
@@ -182,91 +202,215 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-12 md:py-16 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
-      
-      {/* CANVAS BACKGROUND */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
-
-      {/* Ambient Radial Lighting */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
-      </div>
-
-      <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-10 md:gap-12">
+    <>
+      <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-12 md:py-16 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
         
-        {/* TOP ROW: HEADLINE & EMAIL CTA */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
+        {/* CANVAS BACKGROUND */}
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
+
+        {/* Ambient Radial Lighting */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
+        </div>
+
+        <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-10 md:gap-12">
           
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Available for select opportunities</span>
+          {/* TOP ROW: HEADLINE & EMAIL FORM TRIGGER CAPSULE */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
+            
+            <div className="space-y-2 my-10 md:my-14">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Available for select opportunities</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight">
+                Let&apos;s build something <br /><span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
+              </h2>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight">
-              Let&apos;s build something <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
-            </h2>
+            {/* Open Email Form Modal Capsule Button */}
+            <motion.button
+              onClick={() => setIsModalOpen(true)}
+              whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(249,115,22,0.4)" }}
+              whileTap={{ scale: 0.96 }}
+              className="self-start md:self-auto px-6 py-3.5 rounded-full bg-orange-500 dark:bg-orange-500 light:bg-amber-500 text-black font-syne font-bold text-xs uppercase tracking-widest hover:bg-orange-400 transition-all cursor-pointer shadow-xl flex items-center gap-3 shrink-0 group"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-black animate-ping" />
+              <span>✉️ SEND MESSAGE // {TARGET_EMAIL}</span>
+            </motion.button>
+
           </div>
 
-          {/* Email Copy Capsule */}
-          <motion.button
-            onClick={handleCopyEmail}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="self-start md:self-auto px-6 py-3 rounded-full bg-black/80 dark:bg-black/80 light:bg-white border border-white/20 dark:border-white/20 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-lg backdrop-blur-md flex items-center gap-2.5 shrink-0 group"
-          >
-            <span className="w-2 h-2 rounded-full bg-orange-500 group-hover:animate-ping" />
-            <span>{copied ? '✓ Email Copied!' : 'ayushkodle1@gmail.com'}</span>
-          </motion.button>
+          {/* MIDDLE ROW: OFFICIAL SOCIAL SVG ICON BUTTONS */}
+          <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
+            
+            {/* Minimalist Social Icon Buttons */}
+            <div className="flex items-center gap-3">
+              {socialLinks.map((item) => (
+                <motion.a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -3, scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group flex items-center justify-center"
+                  aria-label={item.name}
+                >
+                  {item.icon}
 
-        </div>
+                  <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-white text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
+                    {item.name}
+                  </span>
+                </motion.a>
+              ))}
+            </div>
 
-        {/* MIDDLE ROW: OFFICIAL SOCIAL SVG ICON BUTTONS */}
-        <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
-          
-          {/* Minimalist Social Icon Buttons */}
-          <div className="flex items-center gap-3">
-            {socialLinks.map((item) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ y: -3, scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group flex items-center justify-center"
-                aria-label={item.name}
-              >
-                {item.icon}
+          </div>
 
-                {/* Minimalist Tooltip on Hover */}
-                <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-white text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
-                  {item.name}
-                </span>
-              </motion.a>
-            ))}
+          {/* BOTTOM ROW: MINIMALIST COPYRIGHT & BACK TO TOP */}
+          <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-white/40 dark:text-white/40 light:text-slate-500">
+            <div>
+              © 2026 <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 font-semibold">AYUSH KODLE</span>. ALL RIGHTS RESERVED.
+            </div>
+
+            <motion.button
+              onClick={scrollToTop}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-1.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-white border border-white/15 dark:border-white/15 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-[11px] uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-sm flex items-center gap-2"
+            >
+              <span>Back to Top</span>
+              <span>↑</span>
+            </motion.button>
           </div>
 
         </div>
+      </footer>
 
-        {/* BOTTOM ROW: MINIMALIST COPYRIGHT & BACK TO TOP */}
-        <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-white/40 dark:text-white/40 light:text-slate-500">
-          <div>
-            © 2026 <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 font-semibold">AYUSH KODLE</span>. ALL RIGHTS RESERVED.
+      {/* CONTACT FORM MODAL */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6">
+            
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-lg bg-[#141414] dark:bg-[#141414] light:bg-white backdrop-blur-2xl p-6 sm:p-8 rounded-[2rem] border border-white/15 dark:border-white/15 light:border-slate-300 shadow-2xl z-10 overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 dark:border-white/10 light:border-slate-200">
+                <div>
+                  <div className="font-mono text-[10px] text-orange-500 font-bold uppercase tracking-widest">
+                    Direct Contact // {TARGET_EMAIL}
+                  </div>
+                  <h3 className="text-2xl font-bold font-cinzel text-white dark:text-white light:text-slate-900 mt-1">
+                    Send a Message
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-9 h-9 rounded-full bg-white/5 dark:bg-white/5 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 hover:bg-orange-500 hover:text-black transition-all flex items-center justify-center cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                <div>
+                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Jane Doe"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
+                    Your Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="jane@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
+                    Subject / Project Topic
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full-Stack Web App Inquiry"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-xs text-neutral-400 dark:text-neutral-400 light:text-slate-600 uppercase mb-1.5">
+                    Message
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Tell me about your project or opportunity..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 dark:bg-black/60 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-300 text-white dark:text-white light:text-slate-900 text-sm focus:border-orange-500 outline-none transition-colors resize-none"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCopyEmail}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/5 dark:bg-white/5 light:bg-slate-200 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-wider hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    {copied ? '✓ Copied Address!' : 'Copy Email Address'}
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-orange-500 text-black font-syne font-bold text-xs uppercase tracking-widest hover:bg-orange-400 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <span>{sentSuccess ? '🚀 Opening Mail App...' : 'Send Message ✉️'}</span>
+                  </button>
+                </div>
+              </form>
+
+            </motion.div>
           </div>
-
-          <motion.button
-            onClick={scrollToTop}
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-4 py-1.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-white border border-white/15 dark:border-white/15 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-[11px] uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-sm flex items-center gap-2"
-          >
-            <span>Back to Top</span>
-            <span>↑</span>
-          </motion.button>
-        </div>
-
-      </div>
-    </footer>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
