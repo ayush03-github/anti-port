@@ -4,11 +4,56 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
 const socialLinks = [
-  { name: 'GitHub', href: 'https://github.com/ayush03-github', tag: '@ayush03-github' },
-  { name: 'LinkedIn', href: 'https://linkedin.com/in/ayush-kodle', tag: '/in/ayush-kodle' },
-  { name: 'LeetCode', href: 'https://leetcode.com/ayushkodle', tag: '@ayushkodle' },
-  { name: 'X / Twitter', href: 'https://twitter.com/ayush_kodle', tag: '@ayush_kodle' },
-  { name: 'CSSBattle', href: 'https://cssbattle.dev/player/pixelette', tag: 'pixelette' }
+  { 
+    name: 'GitHub', 
+    href: 'https://github.com/ayush03-github', 
+    tag: '@ayush03-github',
+    icon: (
+      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+      </svg>
+    )
+  },
+  { 
+    name: 'LinkedIn', 
+    href: 'https://linkedin.com/in/ayush-kodle', 
+    tag: '/in/ayush-kodle',
+    icon: (
+      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+      </svg>
+    )
+  },
+  { 
+    name: 'LeetCode', 
+    href: 'https://leetcode.com/ayushkodle', 
+    tag: '@ayushkodle',
+    icon: (
+      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226a1.374 1.374 0 0 0-.012 1.939l4.57 4.673a1.374 1.374 0 0 0 1.96 0l5.406-5.52a1.374 1.374 0 0 0 .012-1.939l-4.57-4.673A1.374 1.374 0 0 0 13.483 0zm-7.61 9.873a1.374 1.374 0 0 0-1.96 0l-3.48 3.553a1.374 1.374 0 0 0 0 1.939l10.02 10.24a1.374 1.374 0 0 0 1.96 0l3.48-3.552a1.374 1.374 0 0 0 0-1.94L7.834 9.873z" />
+      </svg>
+    )
+  },
+  { 
+    name: 'X / Twitter', 
+    href: 'https://twitter.com/ayush_kodle', 
+    tag: '@ayush_kodle',
+    icon: (
+      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    )
+  },
+  { 
+    name: 'CSSBattle', 
+    href: 'https://cssbattle.dev/player/pixelette', 
+    tag: 'pixelette',
+    icon: (
+      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    )
+  }
 ];
 
 export default function Footer() {
@@ -24,7 +69,7 @@ export default function Footer() {
 
     let animId: number;
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 240);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 320);
 
     const handleResize = () => {
       if (!canvas || !canvas.parentElement) return;
@@ -33,9 +78,9 @@ export default function Footer() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Generate 35 Subtle Stars
+    // Generate 40 Subtle Stars
     const stars: Array<{ x: number; y: number; radius: number; alpha: number; twinkleSpeed: number; maxAlpha: number }> = [];
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 40; i++) {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -60,7 +105,7 @@ export default function Footer() {
         alpha: 0.35
       });
     };
-    const meteorInterval = setInterval(spawnMeteor, 7000);
+    const meteorInterval = setInterval(spawnMeteor, 6500);
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -118,7 +163,7 @@ export default function Footer() {
   }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('ayushkodle.dev@gmail.com');
+    navigator.clipboard.writeText('ayushkodle1@gmail.com');
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -128,28 +173,28 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-6 md:py-8 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
+    <footer className="relative w-full bg-[#08080a] dark:bg-[#08080a] light:bg-[#f8f9fa] text-white dark:text-white light:text-slate-900 border-t border-white/10 dark:border-white/10 light:border-slate-300 py-12 md:py-16 px-4 sm:px-6 md:px-10 overflow-hidden transition-colors duration-300">
       
       {/* CANVAS BACKGROUND */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 dark:opacity-40 light:opacity-20" />
 
       {/* Ambient Radial Lighting */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-orange-500/5 dark:bg-orange-500/5 light:bg-amber-500/10 blur-[140px] rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-6 md:gap-8">
+      <div className="relative z-10 max-w-[94%] mx-auto flex flex-col justify-between gap-10 md:gap-12">
         
         {/* TOP ROW: HEADLINE & EMAIL CTA */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-16">
           
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-orange-400 dark:text-orange-400 light:text-amber-700 font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Available for select opportunities</span>
             </div>
 
-            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-cinzel leading-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight font-cinzel leading-tight">
               Let&apos;s build something <span className="text-orange-500 dark:text-orange-500 light:text-amber-600 italic font-instrument font-normal">extraordinary</span> together.
             </h2>
           </div>
@@ -159,29 +204,36 @@ export default function Footer() {
             onClick={handleCopyEmail}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="self-start md:self-auto px-5 py-2.5 rounded-full bg-black/80 dark:bg-black/80 light:bg-white border border-white/20 dark:border-white/20 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-lg backdrop-blur-md flex items-center gap-2.5 shrink-0 group"
+            className="self-start md:self-auto px-6 py-3 rounded-full bg-black/80 dark:bg-black/80 light:bg-white border border-white/20 dark:border-white/20 light:border-slate-300 text-white dark:text-white light:text-slate-900 font-mono text-xs uppercase tracking-widest hover:border-orange-500 hover:text-orange-400 transition-all cursor-pointer shadow-lg backdrop-blur-md flex items-center gap-2.5 shrink-0 group"
           >
             <span className="w-2 h-2 rounded-full bg-orange-500 group-hover:animate-ping" />
-            <span>{copied ? '✓ Email Copied!' : 'ayushkodle.dev@gmail.com'}</span>
+            <span>{copied ? '✓ Email Copied!' : 'ayushkodle1@gmail.com'}</span>
           </motion.button>
 
         </div>
 
-        {/* MIDDLE ROW: SOCIAL LINKS BAR */}
-        <div className="pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
+        {/* MIDDLE ROW: SLEEK SOCIAL ICON BUTTONS */}
+        <div className="pt-6 border-t border-white/10 dark:border-white/10 light:border-slate-300 flex flex-wrap items-center justify-between gap-4">
           
-          <div className="flex flex-wrap gap-2.5">
+          {/* Minimalist Social Icon Buttons */}
+          <div className="flex items-center gap-3">
             {socialLinks.map((item) => (
               <motion.a
                 key={item.name}
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ y: -2 }}
-                className="px-3.5 py-1.5 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 font-mono text-xs text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:border-orange-500/50 hover:text-orange-400 transition-all flex items-center gap-2"
+                whileHover={{ y: -3, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative p-3 rounded-xl bg-white/5 dark:bg-white/5 light:bg-white border border-white/10 dark:border-white/10 light:border-slate-300 text-neutral-300 dark:text-neutral-300 light:text-slate-700 hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-md group"
+                aria-label={item.name}
               >
-                <span className="font-semibold">{item.name}</span>
-                <span className="text-white/30 dark:text-white/30 light:text-slate-400 text-[10px]">{item.tag}</span>
+                {item.icon}
+
+                {/* Minimalist Tooltip on Hover */}
+                <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-black/90 text-white text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
+                  {item.name}
+                </span>
               </motion.a>
             ))}
           </div>
