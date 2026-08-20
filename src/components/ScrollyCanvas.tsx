@@ -55,12 +55,11 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
     }
   };
 
-  // Instant User Interrupt Listeners (Stops Auto Play immediately on user scroll, click, key press, or touch)
+  // Instant User Interrupt Listeners
   useEffect(() => {
     if (!isAutoScrolling) return;
 
     const handleUserInterrupt = (e: Event) => {
-      // Prevent button click itself from double-triggering interrupt
       if ((e as MouseEvent).target && ((e as MouseEvent).target as HTMLElement).closest('.auto-play-btn')) {
         return;
       }
@@ -162,10 +161,10 @@ export default function ScrollyCanvas({ children }: { children?: React.ReactNode
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-[#121212] dark:bg-[#121212] light:bg-[#f8f9fa] transition-colors duration-300">
         
-        {/* Canvas Layer */}
+        {/* Canvas Layer - Zoomed in 8% (scale-105/scale-110) to fill side screens edge-to-edge */}
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-cover transition-opacity duration-500 ease-in-out"
+          className="w-full h-full object-cover scale-110 transition-opacity duration-500 ease-in-out"
           style={{ opacity: isFirstFrameLoaded ? 1 : 0 }}
         />
         
