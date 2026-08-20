@@ -11,7 +11,7 @@ export default function Projects() {
   ];
 
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0, y: 80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-120px" }}
@@ -67,14 +67,6 @@ export default function Projects() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Nano Banana Footer Accent */}
-      <div className="mt-40 border-t border-white/10 dark:border-white/10 light:border-slate-300 pt-10 pb-10 flex flex-col items-center md:flex-row justify-between max-w-7xl mx-auto transition-colors duration-300">
-        <p className="text-sm text-neutral-500 dark:text-neutral-500 light:text-slate-600 font-mono">© {new Date().getFullYear()} Ayush Kodle</p>
-        <button className="mt-6 md:mt-0 relative px-8 py-3 bg-transparent border border-[#f5e156] dark:border-[#f5e156] light:border-amber-600 text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 hover:bg-[#f5e156] dark:hover:bg-[#f5e156] light:hover:bg-amber-600 hover:text-black dark:hover:text-black light:hover:text-white transition-colors duration-300 rounded-full font-mono text-sm tracking-widest uppercase overflow-hidden group cursor-pointer">
-          <span className="relative z-10">Get In Touch</span>
-        </button>
       </div>
     </motion.section>
   );

@@ -3,33 +3,56 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 
-// Web Audio API Synthesizer to generate a cute cat meow sound effect on click/tap
+// Web Audio API Synthesizer to generate a distinct cute cat meow sound effect on click/tap
 const playMeowSound = () => {
   try {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
     const now = ctx.currentTime;
 
+    // Pitch sweep: starts around 340Hz ("Me-"), rises to 780Hz ("-o-"), drops to 440Hz ("-w~")
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(380, now);
-    osc.frequency.exponentialRampToValueAtTime(760, now + 0.1);
-    osc.frequency.exponentialRampToValueAtTime(460, now + 0.3);
+    osc.frequency.setValueAtTime(340, now);
+    osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.38);
 
     gain.gain.setValueAtTime(0.01, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    gain.gain.linearRampToValueAtTime(0.45, now + 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.3);
+    osc.stop(now + 0.38);
+
+    // Warm formant harmonic layer
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(680, now);
+    osc2.frequency.exponentialRampToValueAtTime(1560, now + 0.12);
+    osc2.frequency.exponentialRampToValueAtTime(880, now + 0.38);
+
+    gain2.gain.setValueAtTime(0.01, now);
+    gain2.gain.linearRampToValueAtTime(0.2, now + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+
+    osc2.start(now);
+    osc2.stop(now + 0.38);
   } catch (e) {
-    console.error(e);
+    console.error('Audio synth error:', e);
   }
 };
 
@@ -84,8 +107,49 @@ export default function CustomCursor() {
     };
   }, []);
 
+  // Global Click & Tap Listener for Cat Paw Prints & Meow Audio (Works on Desktop & Mobile!)
   useEffect(() => {
-    if (isTouchDevice) return; // Disable mouse cursor tracking overlay on mobile touch screens
+    const handleGlobalClick = (e: MouseEvent | TouchEvent) => {
+      playMeowSound();
+
+      let clientX = 0;
+      let clientY = 0;
+
+      if ('touches' in e && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if ('clientX' in e) {
+        clientX = (e as MouseEvent).clientX;
+        clientY = (e as MouseEvent).clientY;
+      }
+
+      if (clientX > 0 || clientY > 0) {
+        const newPaw: PawPrint = {
+          id: Date.now() + Math.random(),
+          x: clientX,
+          y: clientY,
+        };
+
+        setPawPrints((prev) => [...prev.slice(-3), newPaw]);
+
+        setTimeout(() => {
+          setPawPrints((prev) => prev.filter((p) => p.id !== newPaw.id));
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('click', handleGlobalClick, { passive: true });
+    window.addEventListener('touchstart', handleGlobalClick, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', handleGlobalClick);
+      window.removeEventListener('touchstart', handleGlobalClick);
+    };
+  }, []);
+
+  // Desktop Mouse Motion Tracking
+  useEffect(() => {
+    if (isTouchDevice) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (rafId.current) cancelAnimationFrame(rafId.current);
@@ -110,26 +174,9 @@ export default function CustomCursor() {
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
-    const handleClick = (e: MouseEvent) => {
-      playMeowSound();
-
-      const newPaw: PawPrint = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-      };
-
-      setPawPrints((prev) => [...prev.slice(-3), newPaw]);
-
-      setTimeout(() => {
-        setPawPrints((prev) => prev.filter((p) => p.id !== newPaw.id));
-      }, 1000);
-    };
-
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('mousedown', handleMouseDown, { passive: true });
     window.addEventListener('mouseup', handleMouseUp, { passive: true });
-    window.addEventListener('click', handleClick, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseenter', handleMouseEnter);
 
@@ -138,7 +185,6 @@ export default function CustomCursor() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('click', handleClick);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
     };
