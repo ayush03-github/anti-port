@@ -1,9 +1,9 @@
 'use client';
 
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// Web Audio API Synthesizer functions for Lab sound pads and randomizer button
+// Web Audio API Synthesizer functions
 const playSynthPad = (type: 'glitch' | 'sub' | 'laser' | 'cyber' | 'random') => {
   try {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
@@ -84,15 +84,19 @@ const playSynthPad = (type: 'glitch' | 'sub' | 'laser' | 'cyber' | 'random') => 
 const playgroundsList = [
   { id: 1, tag: "01", title: "3D Kinetic Tilt Sculpture", desc: "Physics-based 3D clay orb with high-intensity rotational tilt (+60°/-60°) and 3D depth momentum." },
   { id: 2, tag: "02", title: "Web Audio Synth Studio", desc: "Generate browser-native synthesized audio waveforms using real-time Web Audio API oscillators." },
-  { id: 3, tag: "03", title: "Live Shader & Glass Studio", desc: "Interactive playground to tweak backdrop blur, glowing neon spread, and hue shifts in real-time." },
-  { id: 4, tag: "04", title: "3D Cyberpunk Hologram Cube", desc: "Interactive 3D rotating neon wireframe hologram cube with customizable glow colors." },
-  { id: 5, tag: "05", title: "Retro Audio Equalizer Spectrum", desc: "Animated 16-bar retro spectrum equalizer visualizer with custom bounce speed." }
+  { id: 3, tag: "03", title: "Generative Particle Canvas", desc: "Move your cursor across the viewport to stream glowing particle explosions." },
+  { id: 4, tag: "04", title: "Live Shader & Glass Studio", desc: "Interactive playground to tweak backdrop blur, glowing neon spread, and hue shifts in real-time." },
+  { id: 5, tag: "05", title: "Matrix Cyber Digital Rain", desc: "Classic 8-bit digital rain canvas with real-time speed controls." },
+  { id: 6, tag: "06", title: "Magnetic Physics Nodes", desc: "Interactive node graph where floating energy nodes magnetize towards your cursor." },
+  { id: 7, tag: "07", title: "Interactive Water Ripple Surface", desc: "Click anywhere inside the viewport to generate expanding 2D shockwaves on a fluid grid." },
+  { id: 8, tag: "08", title: "3D Cyberpunk Hologram Cube", desc: "Interactive 3D rotating neon wireframe hologram cube with customizable glow colors." },
+  { id: 9, tag: "09", title: "Retro Audio Equalizer Spectrum", desc: "Animated 16-bar retro spectrum equalizer visualizer with custom bounce speed." },
+  { id: 10, tag: "10", title: "Solar Magnetic Plasma Field", desc: "120 glowing plasma particles swirling in orbital vortexes around your cursor." }
 ];
 
 export default function Lab() {
   const [activeId, setActiveId] = useState(1);
 
-  // Randomize Playground
   const handleRandomize = () => {
     playSynthPad('random');
     const otherIds = playgroundsList.map(p => p.id).filter(id => id !== activeId);
@@ -127,16 +131,345 @@ export default function Lab() {
     setTiltDisplay({ rx: 0, ry: 0 });
   };
 
-  // --- EXPERIMENT 3: SHADER STUDIO ---
+  // --- EXPERIMENT 3: GENERATIVE PARTICLE CANVAS (FIXED SCALED COORDINATES) ---
+  const particleCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [particleCount, setParticleCount] = useState(0);
+
+  useEffect(() => {
+    if (activeId !== 3) return;
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    const particles: Array<{ x: number; y: number; vx: number; vy: number; radius: number; alpha: number; color: string }> = [];
+
+    // Seed ambient particles
+    for (let i = 0; i < 35; i++) {
+      particles.push({
+        x: Math.random() * 600,
+        y: Math.random() * 360,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        radius: Math.random() * 4 + 2,
+        alpha: 0.8,
+        color: '#f5e156'
+      });
+    }
+
+    const addParticles = (x: number, y: number) => {
+      for (let i = 0; i < 6; i++) {
+        particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          radius: Math.random() * 5 + 2,
+          alpha: 1,
+          color: ['#f5e156', '#fbbf24', '#f59e0b', '#ffffff'][Math.floor(Math.random() * 4)]
+        });
+      }
+    };
+
+    const handleCanvasMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      const posX = (e.clientX - rect.left) * scaleX;
+      const posY = (e.clientY - rect.top) * scaleY;
+      addParticles(posX, posY);
+    };
+
+    canvas.addEventListener('mousemove', handleCanvasMove);
+
+    const render = () => {
+      ctx.fillStyle = 'rgba(24, 24, 24, 0.25)';
+      ctx.fillRect(0, 0, 600, 360);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.015;
+
+        if (p.x < 0 || p.x > 600) p.vx *= -1;
+        if (p.y < 0 || p.y > 360) p.vy *= -1;
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      setParticleCount(particles.length);
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => {
+      canvas.removeEventListener('mousemove', handleCanvasMove);
+      cancelAnimationFrame(animId);
+    };
+  }, [activeId]);
+
+  // --- EXPERIMENT 4: SHADER STUDIO ---
   const [blurVal, setBlurVal] = useState(18);
   const [glowVal, setGlowVal] = useState(65);
   const [hueShift, setHueShift] = useState(0);
 
-  // --- EXPERIMENT 4: 3D HOLOGRAM CUBE ---
+  // --- EXPERIMENT 5: MATRIX RAIN ---
+  const matrixCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [matrixSpeed, setMatrixSpeed] = useState(33);
+
+  useEffect(() => {
+    if (activeId !== 5) return;
+    const canvas = matrixCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ#@$%&*";
+    const fontSize = 14;
+    const columns = Math.floor(600 / fontSize);
+    const drops: number[] = Array(columns).fill(1);
+
+    const interval = setInterval(() => {
+      ctx.fillStyle = "rgba(8, 8, 8, 0.15)";
+      ctx.fillRect(0, 0, 600, 360);
+
+      ctx.fillStyle = "#f5e156";
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > 360 && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }, matrixSpeed);
+
+    return () => clearInterval(interval);
+  }, [activeId, matrixSpeed]);
+
+  // --- EXPERIMENT 6: MAGNETIC PHYSICS NODES (FIXED SCALED COORDINATES) ---
+  const nodeCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (activeId !== 6) return;
+    const canvas = nodeCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let mouse = { x: 300, y: 180 };
+
+    const nodes = Array.from({ length: 14 }, () => ({
+      x: Math.random() * 560 + 20,
+      y: Math.random() * 320 + 20,
+      vx: (Math.random() - 0.5) * 2.5,
+      vy: (Math.random() - 0.5) * 2.5,
+      baseRadius: Math.random() * 6 + 4,
+    }));
+
+    const handleCanvasMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      mouse.x = (e.clientX - rect.left) * scaleX;
+      mouse.y = (e.clientY - rect.top) * scaleY;
+    };
+
+    canvas.addEventListener('mousemove', handleCanvasMove);
+
+    const renderNodes = () => {
+      ctx.clearRect(0, 0, 600, 360);
+
+      nodes.forEach((node) => {
+        const dx = mouse.x - node.x;
+        const dy = mouse.y - node.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 200) {
+          const force = (200 - dist) / 200;
+          node.x += (dx / dist) * force * 4;
+          node.y += (dy / dist) * force * 4;
+
+          ctx.beginPath();
+          ctx.moveTo(node.x, node.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(245, 225, 86, ${force * 0.8})`;
+          ctx.lineWidth = force * 2.5;
+          ctx.stroke();
+        }
+
+        node.x += node.vx;
+        node.y += node.vy;
+
+        if (node.x < 10 || node.x > 590) node.vx *= -1;
+        if (node.y < 10 || node.y > 350) node.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.baseRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#f5e156';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#f5e156';
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(renderNodes);
+    };
+
+    renderNodes();
+    return () => {
+      canvas.removeEventListener('mousemove', handleCanvasMove);
+      cancelAnimationFrame(animId);
+    };
+  }, [activeId]);
+
+  // --- EXPERIMENT 7: WATER RIPPLE ---
+  const rippleCanvasRef = useRef<HTMLCanvasElement>(null);
+  const ripplesRef = useRef<Array<{ x: number; y: number; radius: number; alpha: number }>>([]);
+
+  const handleRippleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = rippleCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = 600 / (rect.width || 1);
+    const scaleY = 360 / (rect.height || 1);
+    ripplesRef.current.push({
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+      radius: 5,
+      alpha: 1
+    });
+  };
+
+  useEffect(() => {
+    if (activeId !== 7) return;
+    const canvas = rippleCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+
+    const renderRipples = () => {
+      ctx.clearRect(0, 0, 600, 360);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < 600; x += 30) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 360); ctx.stroke();
+      }
+      for (let y = 0; y < 360; y += 30) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(600, y); ctx.stroke();
+      }
+
+      for (let i = ripplesRef.current.length - 1; i >= 0; i--) {
+        const r = ripplesRef.current[i];
+        r.radius += 4;
+        r.alpha -= 0.015;
+
+        if (r.alpha <= 0) {
+          ripplesRef.current.splice(i, 1);
+          continue;
+        }
+
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(245, 225, 86, ${r.alpha})`;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#f5e156';
+        ctx.stroke();
+      }
+
+      animId = requestAnimationFrame(renderRipples);
+    };
+
+    renderRipples();
+    return () => cancelAnimationFrame(animId);
+  }, [activeId]);
+
+  // --- EXPERIMENT 8: 3D HOLOGRAM CUBE ---
   const [holoTheme, setHoloTheme] = useState<'amber' | 'cyan' | 'magenta' | 'green'>('amber');
 
-  // --- EXPERIMENT 5: RETRO AUDIO EQUALIZER ---
+  // --- EXPERIMENT 9: RETRO AUDIO EQUALIZER ---
   const [eqSpeed, setEqSpeed] = useState(1);
+
+  // --- EXPERIMENT 10: SOLAR PLASMA ---
+  const plasmaCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (activeId !== 10) return;
+    const canvas = plasmaCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let mouse = { x: 300, y: 180 };
+
+    const particles = Array.from({ length: 120 }, () => ({
+      x: Math.random() * 600,
+      y: Math.random() * 360,
+      angle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 2 + 1,
+      radius: Math.random() * 3 + 1,
+    }));
+
+    const handleCanvasMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 600 / (rect.width || 1);
+      const scaleY = 360 / (rect.height || 1);
+      mouse.x = (e.clientX - rect.left) * scaleX;
+      mouse.y = (e.clientY - rect.top) * scaleY;
+    };
+
+    canvas.addEventListener('mousemove', handleCanvasMove);
+
+    const renderPlasma = () => {
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.2)';
+      ctx.fillRect(0, 0, 600, 360);
+
+      particles.forEach((p) => {
+        p.angle += 0.03;
+        const targetX = mouse.x + Math.cos(p.angle) * 85;
+        const targetY = mouse.y + Math.sin(p.angle) * 85;
+        p.x += (targetX - p.x) * 0.05;
+        p.y += (targetY - p.y) * 0.05;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#f5e156';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#f5e156';
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(renderPlasma);
+    };
+
+    renderPlasma();
+    return () => {
+      canvas.removeEventListener('mousemove', handleCanvasMove);
+      cancelAnimationFrame(animId);
+    };
+  }, [activeId]);
 
   // Audio synth pad trigger
   const [activePad, setActivePad] = useState<string | null>(null);
@@ -147,7 +480,7 @@ export default function Lab() {
   };
 
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0, y: 80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-100px" }}
@@ -156,7 +489,7 @@ export default function Lab() {
     >
       {/* Ambient Glow & Grid Background */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        <div 
+        <div
           className="absolute inset-0 bg-[#080808] dark:bg-[#080808] light:bg-[#f8f9fa] opacity-40"
           style={{
             backgroundImage: "linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
@@ -167,17 +500,17 @@ export default function Lab() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-slate-100 border border-white/10 dark:border-white/10 light:border-slate-200 font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#f5e156] dark:bg-[#f5e156] light:bg-amber-500 animate-ping" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 dark:bg-white/5 light:bg-amber-100/80 border border-white/10 dark:border-white/10 light:border-amber-300 font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-700 font-bold mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#f5e156] dark:bg-[#f5e156] light:bg-amber-600 animate-ping" />
               <span>03 // Creative Lab</span>
             </div>
 
             <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 font-cinzel transition-colors duration-300">
-              Experimental <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">Playground</span>
+              Experimental <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-600">Playground</span>
             </h2>
           </div>
 
@@ -197,11 +530,10 @@ export default function Lab() {
             <button
               key={item.id}
               onClick={() => { playSynthPad('random'); setActiveId(item.id); }}
-              className={`px-4 py-2 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                activeId === item.id
+              className={`px-3.5 py-1.5 rounded-full font-mono text-[11px] uppercase tracking-wider transition-all duration-200 cursor-pointer whitespace-nowrap ${activeId === item.id
                   ? 'bg-[#f5e156] text-black font-bold shadow-lg scale-105'
-                  : 'bg-[#181818] dark:bg-[#181818] light:bg-white text-white/70 dark:text-white/70 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-300 hover:text-[#f5e156] dark:hover:text-[#f5e156] light:hover:text-amber-600'
-              }`}
+                  : 'bg-[#181818] dark:bg-[#181818] light:bg-slate-200 text-white/70 dark:text-white/70 light:text-slate-800 border border-white/10 dark:border-white/10 light:border-slate-300 hover:text-[#f5e156] dark:hover:text-[#f5e156] light:hover:text-amber-600 font-semibold'
+                }`}
             >
               <span>{item.tag}</span> : <span className="font-space">{item.title.split(' ')[0]}</span>
             </button>
@@ -210,10 +542,10 @@ export default function Lab() {
 
         {/* MAIN LAYOUT: Playground Viewport (Left 60%) + Details & Controls Panel (Right 40%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          
+
           {/* LEFT SIDE (7 Cols): Playground Viewport */}
-          <div className="lg:col-span-7 bg-[#121212]/80 dark:bg-[#121212]/80 light:bg-white/85 backdrop-blur-2xl p-6 md:p-8 rounded-[2.5rem] border border-white/10 dark:border-white/10 light:border-slate-200 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[420px] transition-colors duration-300">
-            
+          <div className="lg:col-span-7 bg-[#121212]/80 dark:bg-[#121212]/80 light:bg-white backdrop-blur-2xl p-6 md:p-8 rounded-[2.5rem] border border-white/10 dark:border-white/10 light:border-slate-300 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[420px] transition-colors duration-300">
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeId}
@@ -225,7 +557,7 @@ export default function Lab() {
               >
                 {/* 01: 3D Kinetic Tilt */}
                 {activeId === 1 && (
-                  <div 
+                  <div
                     ref={tiltCardRef}
                     onMouseMove={handleTiltMouseMove}
                     onMouseLeave={handleTiltMouseLeave}
@@ -237,7 +569,7 @@ export default function Lab() {
                       style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}
                       className="w-44 h-44 rounded-full bg-gradient-to-br from-[#ffffff] via-[#eaeaea] to-[#666666] shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex items-center justify-center border-2 border-white/40"
                     >
-                      <div 
+                      <div
                         className="w-24 h-24 rounded-full bg-[#f5e156] shadow-[0_0_40px_rgba(245,225,86,1),inset_2px_2px_8px_rgba(255,255,255,1)] animate-pulse"
                         style={{ transform: "translateZ(60px)" }}
                       />
@@ -247,12 +579,12 @@ export default function Lab() {
 
                 {/* 02: Web Audio Synth */}
                 {activeId === 2 && (
-                  <div className="w-full h-[360px] bg-[#1a1a1a] dark:bg-[#1a1a1a] light:bg-slate-100 rounded-3xl border border-white/10 dark:border-white/10 light:border-slate-300 p-6 flex flex-col justify-center items-center gap-6">
+                  <div className="w-full h-[360px] bg-[#1a1a1a] rounded-3xl border border-white/10 dark:border-white/10 light:border-slate-300 p-6 flex flex-col justify-center items-center gap-6">
                     <div className="w-full h-24 bg-[#080808] dark:bg-[#080808] light:bg-slate-900 rounded-2xl flex items-center justify-center border border-white/10">
                       <div className="flex gap-1 items-end h-12">
                         {Array.from({ length: 24 }).map((_, i) => (
-                          <div 
-                            key={i} 
+                          <div
+                            key={i}
                             className="w-1.5 bg-[#f5e156] rounded-full transition-all duration-150"
                             style={{ height: `${activePad ? Math.random() * 100 : Math.sin(i + Date.now() * 0.005) * 30 + 35}%` }}
                           />
@@ -260,18 +592,26 @@ export default function Lab() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 w-full">
-                      <button onClick={() => triggerPad('glitch')} className={`p-4 rounded-xl border font-mono text-xs uppercase ${activePad === 'glitch' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] light:bg-white text-white light:text-slate-900'}`}>01 // Glitch Saw</button>
-                      <button onClick={() => triggerPad('sub')} className={`p-4 rounded-xl border font-mono text-xs uppercase ${activePad === 'sub' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] light:bg-white text-white light:text-slate-900'}`}>02 // Sub Sine</button>
-                      <button onClick={() => triggerPad('laser')} className={`p-4 rounded-xl border font-mono text-xs uppercase ${activePad === 'laser' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] light:bg-white text-white light:text-slate-900'}`}>03 // Laser Pulse</button>
-                      <button onClick={() => triggerPad('cyber')} className={`p-4 rounded-xl border font-mono text-xs uppercase ${activePad === 'cyber' ? 'bg-[#f5e156] text-black' : 'bg-[#181818] light:bg-white text-white light:text-slate-900'}`}>04 // Cyber Burst</button>
+                      <button onClick={() => triggerPad('glitch')} className={`p-4 rounded-xl border font-mono text-xs uppercase font-bold transition-colors ${activePad === 'glitch' ? 'bg-[#f5e156] text-black border-[#f5e156]' : 'bg-[#181818] dark:bg-[#181818] light:bg-slate-200 text-white dark:text-white light:text-slate-900 border-white/10 light:border-slate-300'}`}>01 // Glitch Saw</button>
+                      <button onClick={() => triggerPad('sub')} className={`p-4 rounded-xl border font-mono text-xs uppercase font-bold transition-colors ${activePad === 'sub' ? 'bg-[#f5e156] text-black border-[#f5e156]' : 'bg-[#181818] dark:bg-[#181818] light:bg-slate-200 text-white dark:text-white light:text-slate-900 border-white/10 light:border-slate-300'}`}>02 // Sub Sine</button>
+                      <button onClick={() => triggerPad('laser')} className={`p-4 rounded-xl border font-mono text-xs uppercase font-bold transition-colors ${activePad === 'laser' ? 'bg-[#f5e156] text-black border-[#f5e156]' : 'bg-[#181818] dark:bg-[#181818] light:bg-slate-200 text-white dark:text-white light:text-slate-900 border-white/10 light:border-slate-300'}`}>03 // Laser Pulse</button>
+                      <button onClick={() => triggerPad('cyber')} className={`p-4 rounded-xl border font-mono text-xs uppercase font-bold transition-colors ${activePad === 'cyber' ? 'bg-[#f5e156] text-black border-[#f5e156]' : 'bg-[#181818] dark:bg-[#181818] light:bg-slate-200 text-white dark:text-white light:text-slate-900 border-white/10 light:border-slate-300'}`}>04 // Cyber Burst</button>
                     </div>
                   </div>
                 )}
 
-                {/* 03: Shader Studio */}
+                {/* 03: Generative Particle Canvas */}
                 {activeId === 3 && (
+                  <div className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-900 rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative flex items-center justify-center">
+                    <canvas ref={particleCanvasRef} width={600} height={360} className="w-full h-full block" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/60 uppercase pointer-events-none">Hover mouse across viewport to stream particles ⚡</div>
+                  </div>
+                )}
+
+                {/* 04: Shader Studio */}
+                {activeId === 4 && (
                   <div className="w-full h-[360px] bg-[#181818] dark:bg-[#181818] light:bg-slate-100 rounded-3xl border border-white/10 flex items-center justify-center p-8">
-                    <div 
+                    <div
                       className="w-full max-w-sm p-8 rounded-3xl border border-white/20 text-center select-none shadow-2xl transition-all duration-300"
                       style={{
                         backdropFilter: `blur(${blurVal}px)`,
@@ -287,8 +627,30 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 04: 3D Hologram Cube */}
-                {activeId === 4 && (
+                {/* 05: Matrix Rain */}
+                {activeId === 5 && (
+                  <div className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden flex items-center justify-center">
+                    <canvas ref={matrixCanvasRef} width={600} height={360} className="w-full h-full block" />
+                  </div>
+                )}
+
+                {/* 06: Magnetic Physics Nodes */}
+                {activeId === 6 && (
+                  <div className="w-full h-[360px] bg-[#0d0d0d] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative flex items-center justify-center">
+                    <canvas ref={nodeCanvasRef} width={600} height={360} className="w-full h-full block" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-white/50 uppercase pointer-events-none">Move cursor to magnetize nodes 🧲</div>
+                  </div>
+                )}
+
+                {/* 07: Water Ripple */}
+                {activeId === 7 && (
+                  <div className="w-full h-[360px] bg-[#121212] rounded-3xl border border-white/10 overflow-hidden cursor-pointer flex items-center justify-center">
+                    <canvas ref={rippleCanvasRef} width={600} height={360} onClick={handleRippleClick} className="w-full h-full block" />
+                  </div>
+                )}
+
+                {/* 08: 3D Hologram Cube */}
+                {activeId === 8 && (
                   <div className="w-full h-[360px] bg-[#0c0c0c] rounded-3xl border border-white/10 flex items-center justify-center relative overflow-hidden" style={{ perspective: "800px" }}>
                     <motion.div
                       animate={{
@@ -297,12 +659,11 @@ export default function Lab() {
                         rotateZ: [0, 180]
                       }}
                       transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-                      className={`w-36 h-36 border-2 flex items-center justify-center transition-all duration-500 ${
-                        holoTheme === 'amber' ? 'border-[#f5e156] shadow-[0_0_40px_rgba(245,225,86,0.6)]' :
-                        holoTheme === 'cyan' ? 'border-[#38bdf8] shadow-[0_0_40px_rgba(56,189,248,0.6)]' :
-                        holoTheme === 'magenta' ? 'border-[#a855f7] shadow-[0_0_40px_rgba(168,85,247,0.6)]' :
-                        'border-[#10b981] shadow-[0_0_40px_rgba(16,185,129,0.6)]'
-                      }`}
+                      className={`w-36 h-36 border-2 flex items-center justify-center transition-all duration-500 ${holoTheme === 'amber' ? 'border-[#f5e156] shadow-[0_0_40px_rgba(245,225,86,0.6)]' :
+                          holoTheme === 'cyan' ? 'border-[#38bdf8] shadow-[0_0_40px_rgba(56,189,248,0.6)]' :
+                            holoTheme === 'magenta' ? 'border-[#a855f7] shadow-[0_0_40px_rgba(168,85,247,0.6)]' :
+                              'border-[#10b981] shadow-[0_0_40px_rgba(16,185,129,0.6)]'
+                        }`}
                       style={{ transformStyle: "preserve-3d" }}
                     >
                       <div className="w-20 h-20 border border-white/40 rotate-45 flex items-center justify-center">
@@ -312,18 +673,26 @@ export default function Lab() {
                   </div>
                 )}
 
-                {/* 05: Retro Audio Equalizer */}
-                {activeId === 5 && (
+                {/* 09: Retro Audio Equalizer */}
+                {activeId === 9 && (
                   <div className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 p-6 flex items-end justify-center gap-2">
                     {Array.from({ length: 16 }).map((_, idx) => (
                       <div key={idx} className="w-4 bg-[#1e1e1e] rounded-t-sm h-full flex flex-col justify-end overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           animate={{ height: `${Math.floor(Math.sin((idx + Date.now() * 0.004 * eqSpeed)) * 35 + 50)}%` }}
                           transition={{ type: 'spring', damping: 15 }}
-                          className="w-full bg-gradient-to-t from-[#f5e156] via-amber-400 to-amber-600 rounded-t-sm" 
+                          className="w-full bg-gradient-to-t from-[#f5e156] via-amber-400 to-amber-600 rounded-t-sm"
                         />
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* 10: Solar Plasma */}
+                {activeId === 10 && (
+                  <div className="w-full h-[360px] bg-[#080808] rounded-3xl border border-white/10 overflow-hidden cursor-crosshair relative flex items-center justify-center">
+                    <canvas ref={plasmaCanvasRef} width={600} height={360} className="w-full h-full block" />
+                    <div className="absolute top-4 left-4 font-mono text-[10px] text-[#f5e156] uppercase pointer-events-none">Move cursor to swirl solar plasma vortex ☀️</div>
                   </div>
                 )}
 
@@ -333,15 +702,15 @@ export default function Lab() {
           </div>
 
           {/* RIGHT SIDE (5 Cols): Details & Interactive Control Panel */}
-          <div className="lg:col-span-5 bg-[#121212]/80 dark:bg-[#121212]/80 light:bg-white/85 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 dark:border-white/10 light:border-slate-200 shadow-2xl flex flex-col justify-between transition-colors duration-300">
-            
+          <div className="lg:col-span-5 bg-[#121212]/80 dark:bg-[#121212]/80 light:bg-white backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 dark:border-white/10 light:border-slate-300 shadow-2xl flex flex-col justify-between transition-colors duration-300">
+
             <div>
               {/* Tag & Status */}
               <div className="flex justify-between items-center mb-4">
                 <span className="font-mono text-xs text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 uppercase tracking-widest font-bold">
                   [ EXPERIMENT {currentPlayground.tag} ]
                 </span>
-                <span className="font-mono text-[10px] text-white/40 dark:text-white/40 light:text-slate-500 uppercase">
+                <span className="font-mono text-[10px] text-white/40 dark:text-white/40 light:text-slate-600 uppercase font-semibold">
                   STATUS : ONLINE
                 </span>
               </div>
@@ -350,14 +719,14 @@ export default function Lab() {
               <h3 className="text-2xl md:text-3xl font-bold font-cinzel text-white dark:text-white light:text-slate-900 mb-4 transition-colors duration-300">
                 {currentPlayground.title}
               </h3>
-              <p className="text-sm text-neutral-300 dark:text-neutral-300 light:text-slate-600 font-space leading-relaxed mb-8 transition-colors duration-300">
+              <p className="text-sm text-neutral-300 dark:text-neutral-300 light:text-slate-700 font-space leading-relaxed mb-8 transition-colors duration-300">
                 {currentPlayground.desc}
               </p>
             </div>
 
             {/* Dynamic Controls per Playground */}
             <div className="space-y-6 border-t border-white/10 dark:border-white/10 light:border-slate-200 pt-6">
-              
+
               {activeId === 1 && (
                 <div className="flex justify-between items-center font-mono text-xs">
                   <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">3D Tilt Momentum:</span>
@@ -366,6 +735,13 @@ export default function Lab() {
               )}
 
               {activeId === 3 && (
+                <div className="flex justify-between items-center font-mono text-xs">
+                  <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">Active Particle Stream:</span>
+                  <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 font-bold">{particleCount} Particles</span>
+                </div>
+              )}
+
+              {activeId === 4 && (
                 <div className="space-y-4 font-mono text-xs">
                   <div>
                     <div className="flex justify-between text-neutral-400 dark:text-neutral-400 light:text-slate-600 mb-1">
@@ -382,7 +758,23 @@ export default function Lab() {
                 </div>
               )}
 
-              {activeId === 4 && (
+              {activeId === 5 && (
+                <div className="space-y-2 font-mono text-xs">
+                  <div className="flex justify-between text-neutral-400 dark:text-neutral-400 light:text-slate-600">
+                    <span>Rain Speed</span>
+                    <span className="text-[#f5e156] font-bold">{matrixSpeed}ms</span>
+                  </div>
+                  <input type="range" min="10" max="100" value={matrixSpeed} onChange={(e) => setMatrixSpeed(Number(e.target.value))} className="w-full accent-[#f5e156]" />
+                </div>
+              )}
+
+              {activeId === 7 && (
+                <div className="text-center font-mono text-xs text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 font-bold uppercase animate-pulse">
+                  Click inside the left viewport to ripple! 🌊
+                </div>
+              )}
+
+              {activeId === 8 && (
                 <div className="space-y-3 font-mono text-xs">
                   <span className="text-neutral-400 dark:text-neutral-400 light:text-slate-600">Hologram Wireframe Color:</span>
                   <div className="grid grid-cols-2 gap-2">
@@ -394,7 +786,7 @@ export default function Lab() {
                 </div>
               )}
 
-              {activeId === 5 && (
+              {activeId === 9 && (
                 <div className="space-y-2 font-mono text-xs">
                   <div className="flex justify-between text-neutral-400 dark:text-neutral-400 light:text-slate-600">
                     <span>Equalizer Speed</span>
