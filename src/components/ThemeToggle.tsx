@@ -43,13 +43,13 @@ export default function ThemeToggle() {
       onClick={handleToggle}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.92 }}
-      className="fixed top-6 right-6 z-[200] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/10 dark:bg-neutral-900/80 backdrop-blur-xl border border-black/10 dark:border-white/15 text-slate-900 dark:text-white shadow-lg hover:shadow-xl transition-colors duration-300 cursor-pointer group"
+      className="fixed top-6 right-6 z-[200] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-black/70 backdrop-blur-xl border border-white/20 text-white shadow-xl hover:border-orange-500/50 transition-colors duration-300 cursor-pointer group"
       aria-label="Toggle Theme"
     >
       <motion.div
         animate={{ rotate: theme === 'dark' ? 0 : 180, scale: [1, 1.2, 1] }}
         transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className="w-5 h-5 flex items-center justify-center text-[#f5e156] dark:text-[#f5e156]"
+        className="w-5 h-5 flex items-center justify-center text-orange-500"
       >
         {theme === 'dark' ? (
           // Moon Icon
@@ -58,13 +58,13 @@ export default function ThemeToggle() {
           </svg>
         ) : (
           // Sun Icon
-          <svg className="w-5 h-5 fill-current text-amber-500" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 fill-current text-orange-500" viewBox="0 0 24 24">
             <path d="M12 7a5 5 0 100 10 5 5 0 000-10zM2 13h2a1 1 0 100-2H2a1 1 0 100 2zm18 0h2a1 1 0 100-2h-2a1 1 0 100 2zM11 2v2a1 1 0 102 0V2a1 1 0 10-2 0zm0 18v2a1 1 0 102 0v-2a1 1 0 10-2 0zM5.99 4.58a1 1 0 10-1.41 1.41l1.41 1.41a1 1 0 101.41-1.41L5.99 4.58zm12.02 12.02a1 1 0 10-1.41 1.41l1.41 1.41a1 1 0 101.41-1.41l-1.41-1.41zM7.41 18.01l-1.41 1.41a1 1 0 101.41 1.41l1.41-1.41a1 1 0 10-1.41-1.41zm12.02-12.02l-1.41 1.41a1 1 0 101.41 1.41l1.41-1.41a1 1 0 10-1.41-1.41z" />
           </svg>
         )}
       </motion.div>
 
-      <span className="font-mono text-xs font-semibold uppercase tracking-wider select-none text-slate-800 dark:text-neutral-200">
+      <span className="font-mono text-xs font-semibold uppercase tracking-wider select-none text-white">
         {theme === 'dark' ? 'DARK' : 'LIGHT'}
       </span>
     </motion.button>

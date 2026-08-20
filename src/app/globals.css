@@ -104,35 +104,15 @@ html.light .bg-neutral-900 {
   background-color: #f1f5f9 !important;
 }
 
-/* --- FROSTED GLASSMORPHISM CARD & PILL OVERRIDES --- */
-.glass-card {
-  background-color: rgba(18, 18, 18, 0.45) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+html.light .bg-\[\#141414\]\/70,
+html.light .bg-\[\#121212\]\/80,
+html.light .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
 }
 
-html.light .glass-card {
-  background-color: rgba(255, 255, 255, 0.45) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.7) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
-}
-
-.glass-pill {
-  background-color: rgba(30, 30, 30, 0.5) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-html.light .glass-pill {
-  background-color: rgba(255, 255, 255, 0.55) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+/* Hover overlay background in light mode */
+html.light .bg-\[\#121212\]\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
 html.light .light\:text-slate-600 {
@@ -141,10 +121,6 @@ html.light .light\:text-slate-600 {
 
 html.light .light\:text-slate-700 {
   color: #334155 !important;
-}
-
-html.light .text-white {
-  color: #0f172a !important;
 }
 
 html.light .text-neutral-300,
