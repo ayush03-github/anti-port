@@ -115,28 +115,28 @@ html.light .bg-\[\#121212\]\/90 {
   background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* --- LIGHT MODE TEXT OVERRIDES (ALL SECTIONS EXCEPT OVERLAY) --- */
-html.light section:not(.overlay-content) h1,
-html.light section:not(.overlay-content) h2,
-html.light section:not(.overlay-content) h3,
-html.light main:not(.overlay-content) h1,
-html.light main:not(.overlay-content) h2,
-html.light main:not(.overlay-content) h3,
-html.light .text-white:not(.overlay-content *) {
+/* --- LIGHT MODE TYPOGRAPHY (SLATE HEADINGS & ORANGE ACCENTS) --- */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6 {
   color: #0f172a !important;
 }
 
-html.light .text-neutral-200:not(.overlay-content *),
-html.light .text-neutral-300:not(.overlay-content *),
-html.light .text-neutral-400:not(.overlay-content *) {
-  color: #334155 !important;
+html.light p,
+html.light span,
+html.light div {
+  color: #334155;
 }
 
-html.light .text-white\/70:not(.overlay-content *),
-html.light .text-white\/50:not(.overlay-content *),
-html.light .text-white\/40:not(.overlay-content *),
-html.light .text-white\/30:not(.overlay-content *) {
-  color: #64748b !important;
+/* Accent Orange in Light Mode */
+html.light .text-\[\#f5e156\],
+html.light .text-amber-500,
+html.light .text-amber-600,
+html.light .text-amber-700 {
+  color: #ea580c !important;
 }
 
 html.light .border-white\/5,
@@ -146,32 +146,24 @@ html.light .border-white\/30 {
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
-/* Accent Amber Yellow for Light Mode Contrast (Except Overlay) */
-html.light .text-\[\#f5e156\]:not(.overlay-content *),
-html.light .text-amber-500:not(.overlay-content *),
-html.light .text-amber-600:not(.overlay-content *) {
-  color: #d97706 !important;
-}
-
-html.light .border-\[\#f5e156\] {
-  border-color: #d97706 !important;
-}
-
-/* --- OVERLAY EXPLICIT IMMUNITY RULES --- */
+/* --- OVERLAY EXPLICIT IMMUNITY RULES (ALWAYS PURE WHITE & ORANGE) --- */
 .overlay-content,
 .overlay-content * {
   color: inherit;
 }
 
-.overlay-content h1 .text-white,
-.overlay-content h2.text-white,
-.overlay-content p.text-neutral-200,
-.overlay-content span.text-white {
+.overlay-content .text-white,
+html.light .overlay-content h1 .text-white,
+html.light .overlay-content h2.text-white,
+html.light .overlay-content p,
+html.light .overlay-content span.text-white {
   color: #ffffff !important;
 }
 
 .overlay-content .text-orange-500,
-.overlay-content .text-orange-400 {
+.overlay-content .text-orange-400,
+html.light .overlay-content .text-orange-500,
+html.light .overlay-content .text-orange-400 {
   color: #f97316 !important;
 }
 
@@ -191,6 +183,6 @@ html.light .skill-pill:hover {
 
 html.light .morph-pill-active {
   background-color: #0f172a !important;
-  color: #fbbf24 !important;
+  color: #f97316 !important;
   border-color: #1e293b !important;
 }
