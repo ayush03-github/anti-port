@@ -146,6 +146,21 @@ html.light .border-white\/30 {
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
+/* --- SYNTH PAD BUTTONS IN LIGHT MODE --- */
+html.light .synth-pad-btn:not(.active-pad) {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+html.light .synth-pad-btn.active-pad {
+  background-color: #f5e156 !important;
+  color: #000000 !important;
+  border-color: #f5e156 !important;
+  font-weight: 800 !important;
+}
+
 /* --- OVERLAY EXPLICIT IMMUNITY RULES (ALWAYS PURE WHITE & ORANGE) --- */
 .overlay-content,
 .overlay-content * {
@@ -183,6 +198,6 @@ html.light .skill-pill:hover {
 
 html.light .morph-pill-active {
   background-color: #0f172a !important;
-  color: #f97316 !important;
+  color: #ea580c !important;
   border-color: #1e293b !important;
 }
