@@ -201,3 +201,39 @@ html.light .morph-pill-active {
   color: #ea580c !important;
   border-color: #1e293b !important;
 }
+
+/* --- COSMIC FOOTER IMMUNITY (ALWAYS DARK SPACE THEME) --- */
+.cosmic-footer,
+.cosmic-footer *,
+html.light .cosmic-footer,
+html.light .cosmic-footer * {
+  color: inherit;
+}
+
+html.light .cosmic-footer {
+  background-color: #050508 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.light .cosmic-footer h2,
+html.light .cosmic-footer h3,
+html.light .cosmic-footer p,
+html.light .cosmic-footer span,
+html.light .cosmic-footer div,
+html.light .cosmic-footer a,
+html.light .cosmic-footer button {
+  color: inherit !important;
+}
+
+html.light .cosmic-footer .text-white { color: #ffffff !important; }
+html.light .cosmic-footer .text-orange-500 { color: #f97316 !important; }
+html.light .cosmic-footer .text-orange-400 { color: #fb923c !important; }
+html.light .cosmic-footer .text-white\/50 { color: rgba(255,255,255,0.5) !important; }
+html.light .cosmic-footer .text-white\/70 { color: rgba(255,255,255,0.7) !important; }
+html.light .cosmic-footer .text-neutral-400 { color: #a3a3a3 !important; }
+html.light .cosmic-footer .border-white\/10 { border-color: rgba(255,255,255,0.1) !important; }
+html.light .cosmic-footer .border-white\/15 { border-color: rgba(255,255,255,0.15) !important; }
+html.light .cosmic-footer .border-white\/20 { border-color: rgba(255,255,255,0.2) !important; }
+html.light .cosmic-footer .bg-white\/5 { background-color: rgba(255,255,255,0.05) !important; }
+html.light .cosmic-footer .bg-black\/60 { background-color: rgba(0,0,0,0.6) !important; }
