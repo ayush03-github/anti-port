@@ -61,60 +61,60 @@ export default function Overlay({ containerScrollProgress }: { containerScrollPr
         </div>
       </motion.div>
 
-      {/* SECTION 2 - Vision (Left Aligned Frosted Glass Card) */}
+      {/* SECTION 2 - Vision (Left Aligned Floating Text) */}
       <motion.div
         style={{ opacity: opacity2, y: y2 }}
         className="absolute inset-0 flex flex-col items-start justify-center text-left px-6"
       >
-        <div className="glass-card relative max-w-2xl p-8 md:p-12 rounded-[2.5rem] transition-colors duration-300">
+        <div className="relative max-w-2xl p-4 md:p-6 transition-colors duration-300">
           {/* Accent Glow Blob */}
-          <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#f5e156]/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#f5e156]/15 blur-3xl rounded-full pointer-events-none" />
 
           {/* HUD Section Tag */}
-          <div className="glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-6">
+          <div className="glass-pill inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-6 shadow-md">
             <span>01</span>
             <span className="text-white/30 dark:text-white/30 light:text-slate-400">//</span>
             <span>Vision</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 leading-[1.1] font-cinzel transition-colors duration-300">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 leading-[1.1] font-cinzel drop-shadow-xl transition-colors duration-300">
             Building digital <br className="hidden sm:block" />
             <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">experiences</span> with <br />
             depth &amp; purpose.
           </h2>
 
-          <p className="mt-6 text-sm md:text-base text-neutral-300 dark:text-neutral-300 light:text-slate-600 font-light leading-relaxed max-w-lg font-space transition-colors duration-300">
+          <p className="mt-6 text-sm md:text-base text-neutral-200 dark:text-neutral-200 light:text-slate-700 font-light leading-relaxed max-w-lg font-space drop-shadow-md transition-colors duration-300">
             Merging generative graphics, smooth physics-based motion, and intuitive UI to build interactive web applications that leave a lasting impression.
           </p>
         </div>
       </motion.div>
 
-      {/* SECTION 3 - Engineering & Craft (Right Aligned Frosted Glass Card) */}
+      {/* SECTION 3 - Engineering & Craft (Right Aligned Floating Text) */}
       <motion.div
         style={{ opacity: opacity3, y: y3 }}
         className="absolute inset-0 flex flex-col items-end justify-center text-right px-6"
       >
-        <div className="glass-card relative max-w-2xl p-8 md:p-12 rounded-[2.5rem] transition-colors duration-300">
+        <div className="relative max-w-2xl p-4 md:p-6 transition-colors duration-300">
           {/* Accent Glow Blob */}
-          <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#f5e156]/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#f5e156]/15 blur-3xl rounded-full pointer-events-none" />
 
           {/* HUD Section Tag */}
-          <div className="glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-6">
+          <div className="glass-pill inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 mb-6 shadow-md">
             <span>02</span>
             <span className="text-white/30 dark:text-white/30 light:text-slate-400">//</span>
             <span>Craft</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 leading-[1.1] font-cinzel transition-colors duration-300">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 leading-[1.1] font-cinzel drop-shadow-xl transition-colors duration-300">
             Bridging <span className="text-[#f5e156] dark:text-[#f5e156] light:text-amber-500">design</span> <br />
             &amp; engineering.
           </h2>
 
-          <p className="mt-6 text-sm md:text-base text-neutral-300 dark:text-neutral-300 light:text-slate-600 font-light leading-relaxed max-w-lg ml-auto transition-colors duration-300">
+          <p className="mt-6 text-sm md:text-base text-neutral-200 dark:text-neutral-200 light:text-slate-700 font-light leading-relaxed max-w-lg ml-auto font-space drop-shadow-md transition-colors duration-300">
             Architecting robust frontend infrastructure paired with micro-animations, claymorphism, and modern web standards.
           </p>
 
-          <div className="mt-8 flex items-center justify-end gap-2 font-mono text-xs text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 tracking-widest uppercase font-semibold">
+          <div className="mt-8 flex items-center justify-end gap-2 font-mono text-xs text-[#f5e156] dark:text-[#f5e156] light:text-amber-600 tracking-widest uppercase font-semibold drop-shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#f5e156] dark:bg-[#f5e156] light:bg-amber-500 animate-pulse" />
             <span>Ready for new challenges</span>
           </div>
